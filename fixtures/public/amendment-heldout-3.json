@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "amendment-heldout-3",
+  "adapter": "orders",
+  "family": "amendment",
+  "split": "heldout",
+  "template_group": "relative_quantity",
+  "request": "I need 7 additional blue medium tees in O1120. Everything else stays.",
+  "customer_id": "C1120",
+  "as_of": "2026-10-24",
+  "snapshot": "snapshots/amendment-heldout-3.json",
+  "snapshot_hash": "c53778e17148bc4008276ec1838efe1f1dbee1e774da314ef669692f370a140f",
+  "rules": {
+    "return_days": 30,
+    "amendable_status": "open"
+  }
+}

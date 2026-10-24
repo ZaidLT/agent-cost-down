@@ -1,0 +1,81 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "adapter": {
+      "default": "orders",
+      "enum": [
+        "orders",
+        "inventory"
+      ],
+      "title": "Adapter",
+      "type": "string"
+    },
+    "family": {
+      "title": "Family",
+      "type": "string"
+    },
+    "split": {
+      "enum": [
+        "development",
+        "heldout",
+        "demo"
+      ],
+      "title": "Split",
+      "type": "string"
+    },
+    "template_group": {
+      "title": "Template Group",
+      "type": "string"
+    },
+    "request": {
+      "maxLength": 4000,
+      "title": "Request",
+      "type": "string"
+    },
+    "customer_id": {
+      "title": "Customer Id",
+      "type": "string"
+    },
+    "as_of": {
+      "title": "As Of",
+      "type": "string"
+    },
+    "snapshot": {
+      "title": "Snapshot",
+      "type": "string"
+    },
+    "snapshot_hash": {
+      "title": "Snapshot Hash",
+      "type": "string"
+    },
+    "rules": {
+      "additionalProperties": true,
+      "title": "Rules",
+      "type": "object"
+    }
+  },
+  "required": [
+    "id",
+    "family",
+    "split",
+    "template_group",
+    "request",
+    "customer_id",
+    "as_of",
+    "snapshot",
+    "snapshot_hash",
+    "rules"
+  ],
+  "title": "PublicTask",
+  "type": "object"
+}

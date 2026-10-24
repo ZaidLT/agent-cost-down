@@ -1,0 +1,100 @@
+{
+  "products": [
+    {
+      "sku": "BLACK-L",
+      "name": "Everyday tee",
+      "color": "black",
+      "size": "large",
+      "unit_cents": 2700
+    },
+    {
+      "sku": "BLACK-M",
+      "name": "Everyday tee",
+      "color": "black",
+      "size": "medium",
+      "unit_cents": 2500
+    },
+    {
+      "sku": "BLUE-M",
+      "name": "Everyday tee",
+      "color": "blue",
+      "size": "medium",
+      "unit_cents": 2500
+    },
+    {
+      "sku": "MUG",
+      "name": "Studio mug",
+      "color": "white",
+      "size": "standard",
+      "unit_cents": 1800
+    }
+  ],
+  "stock": [
+    {
+      "sku": "BLACK-L",
+      "available": 13
+    },
+    {
+      "sku": "BLACK-M",
+      "available": 22
+    },
+    {
+      "sku": "BLUE-M",
+      "available": 14
+    },
+    {
+      "sku": "MUG",
+      "available": 28
+    }
+  ],
+  "orders": [
+    {
+      "id": "O1414",
+      "customer_id": "C1414",
+      "status": "open",
+      "created_at": "2026-10-20"
+    },
+    {
+      "id": "O1414B",
+      "customer_id": "C1414",
+      "status": "delivered",
+      "created_at": "2026-10-14"
+    },
+    {
+      "id": "O1414X",
+      "customer_id": "OTHER",
+      "status": "open",
+      "created_at": "2026-10-20"
+    }
+  ],
+  "lines": [
+    {
+      "id": "L1414",
+      "order_id": "O1414",
+      "sku": "BLUE-M",
+      "quantity": 2,
+      "returned": 0
+    },
+    {
+      "id": "L1414B",
+      "order_id": "O1414",
+      "sku": "MUG",
+      "quantity": 1,
+      "returned": 0
+    },
+    {
+      "id": "L1414C",
+      "order_id": "O1414B",
+      "sku": "BLACK-M",
+      "quantity": 3,
+      "returned": 0
+    },
+    {
+      "id": "L1414X",
+      "order_id": "O1414X",
+      "sku": "MUG",
+      "quantity": 7,
+      "returned": 0
+    }
+  ]
+}

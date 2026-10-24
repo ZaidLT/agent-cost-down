@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "ambiguity-development-1",
+  "adapter": "orders",
+  "family": "ambiguity",
+  "split": "development",
+  "template_group": "missing_quantity_or_stock",
+  "request": "Change the tee quantity in O1401.",
+  "customer_id": "C1401",
+  "as_of": "2026-10-24",
+  "snapshot": "snapshots/ambiguity-development-1.json",
+  "snapshot_hash": "48e0c9b204c1247d205f69d61ce6525c5d39d17164f2d81c6d47337d58391d53",
+  "rules": {
+    "return_days": 30,
+    "amendable_status": "open"
+  }
+}

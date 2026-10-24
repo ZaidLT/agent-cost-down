@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: agent-cost-down-api
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    autoDeployTrigger: off
+    envVars:
+      - key: ACD_LIVE_ENABLED
+        value: "false"
+      - key: ACD_MODELS
+        value: /etc/secrets/models.json
+      - key: ACD_POLICIES
+        value: /etc/secrets/policies.json
+      - key: ACD_SUITE
+        value: /app/fixtures
+      - key: NEBIUS_API_KEY
+        sync: false
+      - key: ACD_DATABASE_URL
+        sync: false
+      - key: ACD_JUDGE_CODE
+        sync: false
+      - key: ACD_CLIENT_SALT
+        sync: false
+      - key: ACD_ALLOWED_ORIGINS
+        sync: false

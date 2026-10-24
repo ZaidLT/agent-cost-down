@@ -1,0 +1,205 @@
+from __future__ import annotations
+
+import asyncio
+import hashlib
+import hmac
+import json
+import os
+import uuid
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.exc import SQLAlchemyError
+
+from .contracts import POLICIES, Contract, ModelCatalog, PolicyConfig, digest
+from .fixtures import load_task
+from .ledger import Denied, Ledger
+from .privacy import public_export
+from .provider import RateLimiter, TokenFactory, maximum_cost
+from .runner import run_policy
+
+DEMO_TASKS = [
+    "resolution-development-1",
+    "amendment-development-1",
+    "returns-development-2",
+    "analysis-development-1",
+    "ambiguity-development-1",
+]
+
+
+class Submission(Contract):
+    task_id: str
+    policy_id: str
+
+
+def create_app(db=None, model_catalog=None, provider_factory=None, policies=None):
+    live = os.getenv("ACD_LIVE_ENABLED", "false").lower() == "true"
+    root = Path(os.getenv("ACD_SUITE", "fixtures"))
+    state = {"worker": None, "db": db, "models": model_catalog, "policies": policies}
+
+    async def worker():
+        database = state["db"]
+        while True:
+            try:
+                row = database.claim(str(uuid.uuid4()), hosted=True)
+            except (Denied, SQLAlchemyError):
+                return
+            if not row:
+                delay = database.active_lease_delay()
+                if delay is not None:
+                    await asyncio.sleep(delay + 0.1)
+                    continue
+                return
+            provider = None
+            try:
+                task, snapshot = load_task(root, row["task_id"])
+                config = state["policies"][row["policy_id"]]
+                provider = (
+                    provider_factory(database.hook(row["id"]))
+                    if provider_factory
+                    else TokenFactory(
+                        state["models"].rpm,
+                        state["models"].tpm,
+                        hook=database.hook(row["id"]),
+                        limiter=state["limiter"],
+                    )
+                )
+                result = await run_policy(task, snapshot, config, provider, run_id=row["id"])
+                from .evaluation.outcomes import evaluate_from_file
+
+                result.outcome = evaluate_from_file(result, root)
+                import time
+
+                result.elapsed_queue_ms = max(0.0, (time.time() - row["created"]) * 1000 - result.duration_ms)
+                database.finish(row["id"], public_export(result.model_dump(mode="json")))
+            except BaseException:
+                database.finish(
+                    row["id"], error="Execution failed or was interrupted. No uncertain request is repeated."
+                )
+                if isinstance(__import__("sys").exception(), asyncio.CancelledError):
+                    raise
+            finally:
+                if provider:
+                    await provider.close()
+
+    def wake():
+        if live and (state["worker"] is None or state["worker"].done()):
+            state["worker"] = asyncio.create_task(worker())
+
+    @asynccontextmanager
+    async def lifespan(app):
+        if live:
+            if not os.getenv("ACD_CLIENT_SALT") or not os.getenv("ACD_JUDGE_CODE"):
+                raise RuntimeError("Live mode requires private quota salt and judge code")
+            state["db"] = state["db"] or Ledger(os.environ["ACD_DATABASE_URL"])
+            state["models"] = state["models"] or ModelCatalog.model_validate_json(
+                Path(os.getenv("ACD_MODELS", "private/models.json")).read_text()
+            )
+            if state["policies"] is None:
+                raw = json.loads(Path(os.getenv("ACD_POLICIES", "private/policies.json")).read_text())
+                state["policies"] = {
+                    k: PolicyConfig.model_validate_json(json.dumps(v)) for k, v in raw.items()
+                }
+            if set(state["policies"]) != set(POLICIES):
+                raise RuntimeError("All five pinned policies are required")
+            allowed = {digest(m) for m in state["models"].models.values()}
+            if any(digest(m) not in allowed for p in state["policies"].values() for m in p.models):
+                raise RuntimeError("Pinned policies differ from verified model catalog")
+            state["limiter"] = RateLimiter(state["models"].rpm, state["models"].tpm)
+            state["db"].purge_traces()
+            wake()
+        yield
+        if state["worker"] and not state["worker"].done():
+            state["worker"].cancel()
+            try:
+                await state["worker"]
+            except asyncio.CancelledError:
+                pass
+
+    app = FastAPI(title="Agent Cost Down", version="0.1.0", lifespan=lifespan, docs_url=None, redoc_url=None)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=os.getenv("ACD_ALLOWED_ORIGINS", "http://localhost:5173").split(","),
+        allow_methods=["GET", "POST"],
+        allow_headers=["Content-Type", "Idempotency-Key", "X-Judge-Code"],
+    )
+
+    @app.get("/healthz")
+    async def health():
+        return {"status": "ok", "live_enabled": live}
+
+    @app.get("/v1/catalog")
+    async def catalog():
+        available = False
+        if live:
+            try:
+                available = state["db"].remaining("public") > 0 or state["db"].remaining("judge") > 0
+            except (Denied, SQLAlchemyError):
+                available = False
+        return {
+            "tasks": DEMO_TASKS,
+            "policies": list(POLICIES),
+            "schema_version": 1,
+            "policy_hashes": {k: digest(v) for k, v in (state["policies"] or {}).items()},
+            "available": available,
+            "message": "Live runs require confirmed credit reservations.",
+        }
+
+    @app.post("/v1/runs", status_code=202)
+    async def submit(
+        body: Submission,
+        request: Request,
+        idempotency_key: str = Header(),
+        x_judge_code: str | None = Header(default=None),
+    ):
+        if not live or not state["db"]:
+            raise HTTPException(503, "Live execution is disabled. Recorded reports remain available.")
+        if not 8 <= len(idempotency_key) <= 128:
+            raise HTTPException(400, "Use an idempotency key of 8 to 128 characters")
+        if body.task_id not in DEMO_TASKS or body.policy_id not in POLICIES:
+            raise HTTPException(400, "Choose an allowlisted demo task and policy")
+        judge = bool(x_judge_code and hmac.compare_digest(x_judge_code, os.environ["ACD_JUDGE_CODE"]))
+        if x_judge_code and not judge:
+            raise HTTPException(403, "Judge code is invalid")
+        # Uvicorn trusts only the deployment proxy configured by FORWARDED_ALLOW_IPS.
+        address = request.client.host if request.client else "unknown"
+        client = hmac.new(
+            os.environ["ACD_CLIENT_SALT"].encode(), address.encode(), hashlib.sha256
+        ).hexdigest()
+        config = state["policies"][body.policy_id]
+        try:
+            state["db"].purge_traces()
+            row = state["db"].submit(
+                task_id=body.task_id,
+                policy_id=body.policy_id,
+                client=client,
+                key=idempotency_key,
+                pool="judge" if judge else "public",
+                reserve=maximum_cost(config),
+                payload_hash=digest(body),
+            )
+        except Denied as exc:
+            raise HTTPException(429, str(exc)) from exc
+        except Exception as exc:
+            raise HTTPException(503, "Spending ledger unavailable; no call was dispatched") from exc
+        wake()
+        return {"id": row["id"], "status": row["status"]}
+
+    @app.get("/v1/runs/{run_id}")
+    async def read_run(run_id: uuid.UUID):
+        if not live or not state["db"]:
+            raise HTTPException(503, "Live execution disabled")
+        try:
+            row = state["db"].get(str(run_id))
+        except Exception as exc:
+            raise HTTPException(503, "Job store unavailable") from exc
+        if not row:
+            raise HTTPException(404, "Run not found")
+        return {k: row[k] for k in ("id", "status", "result", "error")}
+
+    return app
+
+
+app = create_app()

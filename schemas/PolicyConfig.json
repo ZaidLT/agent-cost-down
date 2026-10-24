@@ -1,0 +1,158 @@
+{
+  "$defs": {
+    "Limits": {
+      "additionalProperties": false,
+      "properties": {
+        "model_steps": {
+          "default": 8,
+          "maximum": 8,
+          "minimum": 1,
+          "title": "Model Steps",
+          "type": "integer"
+        },
+        "tool_calls": {
+          "default": 20,
+          "maximum": 20,
+          "minimum": 1,
+          "title": "Tool Calls",
+          "type": "integer"
+        },
+        "deadline_seconds": {
+          "default": 180,
+          "maximum": 600,
+          "minimum": 1,
+          "title": "Deadline Seconds",
+          "type": "integer"
+        },
+        "output_tokens": {
+          "default": 4096,
+          "maximum": 8192,
+          "minimum": 128,
+          "title": "Output Tokens",
+          "type": "integer"
+        },
+        "request_bytes": {
+          "default": 32768,
+          "maximum": 65536,
+          "minimum": 1024,
+          "title": "Request Bytes",
+          "type": "integer"
+        },
+        "transport_retries": {
+          "default": 2,
+          "maximum": 2,
+          "minimum": 0,
+          "title": "Transport Retries",
+          "type": "integer"
+        }
+      },
+      "title": "Limits",
+      "type": "object"
+    },
+    "ModelSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "input_usd_per_million": {
+          "minimum": 0,
+          "title": "Input Usd Per Million",
+          "type": "number"
+        },
+        "output_usd_per_million": {
+          "minimum": 0,
+          "title": "Output Usd Per Million",
+          "type": "number"
+        },
+        "settings": {
+          "additionalProperties": true,
+          "title": "Settings",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "input_usd_per_million",
+        "output_usd_per_million"
+      ],
+      "title": "ModelSpec",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "adapter": {
+      "default": "orders",
+      "enum": [
+        "orders",
+        "inventory"
+      ],
+      "title": "Adapter",
+      "type": "string"
+    },
+    "models": {
+      "items": {
+        "$ref": "#/$defs/ModelSpec"
+      },
+      "maxItems": 2,
+      "minItems": 1,
+      "title": "Models",
+      "type": "array"
+    },
+    "limits": {
+      "$ref": "#/$defs/Limits"
+    },
+    "validator_version": {
+      "const": "1",
+      "default": "1",
+      "title": "Validator Version",
+      "type": "string"
+    },
+    "parser_version": {
+      "const": "1",
+      "default": "1",
+      "title": "Parser Version",
+      "type": "string"
+    },
+    "supporting_report": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Supporting Report"
+    },
+    "price_source": {
+      "title": "Price Source",
+      "type": "string"
+    },
+    "prices_verified_at": {
+      "title": "Prices Verified At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "models",
+    "price_source",
+    "prices_verified_at"
+  ],
+  "title": "PolicyConfig",
+  "type": "object"
+}

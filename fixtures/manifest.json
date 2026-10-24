@@ -1,0 +1,354 @@
+{
+  "schema_version": 1,
+  "seed": 20261024,
+  "generator_version": "2",
+  "groups": {
+    "resolution": {
+      "development": "color_alias",
+      "heldout": "size_alias"
+    },
+    "amendment": {
+      "development": "absolute_quantity",
+      "heldout": "relative_quantity"
+    },
+    "returns": {
+      "development": "ordinary_return",
+      "heldout": "previous_partial_return"
+    },
+    "analysis": {
+      "development": "units_per_order",
+      "heldout": "value_date_filter"
+    },
+    "ambiguity": {
+      "development": "missing_quantity_or_stock",
+      "heldout": "missing_request_or_variant_stock"
+    }
+  },
+  "parameters": {
+    "quantity_base": 3,
+    "return_days": 30,
+    "as_of": "2026-10-24"
+  },
+  "tasks": [
+    {
+      "id": "resolution-development-1",
+      "split": "development",
+      "family": "resolution",
+      "template_group": "color_alias",
+      "task_hash": "ced8e5db92362042d8f635e70d1aad4420a4010d919818bd063d524c5545bcc9",
+      "oracle_hash": "3a6a3011f82103a09857afcace6a6662f2136beb2be24f891aee2bd149f08171"
+    },
+    {
+      "id": "resolution-development-2",
+      "split": "development",
+      "family": "resolution",
+      "template_group": "color_alias",
+      "task_hash": "e89e6689b4f93fd4884ddc1ee70c1138526372add663b576d4f1f0fe42edfb26",
+      "oracle_hash": "276b084a8bc404509bd25d15f92cbe0040121318bf7b88ac3db92838051ede9a"
+    },
+    {
+      "id": "resolution-development-3",
+      "split": "development",
+      "family": "resolution",
+      "template_group": "color_alias",
+      "task_hash": "66502ecf76db0adce5741fc631762e9e1b2aee0a8c77c6c34a70ac0a8064d838",
+      "oracle_hash": "f658bd97aa8a839bd968a0191f00c954a4c4fbc9e2c784c593e38dc08110ce2f"
+    },
+    {
+      "id": "resolution-development-4",
+      "split": "development",
+      "family": "resolution",
+      "template_group": "color_alias",
+      "task_hash": "46ab99c2938c4e12cd2080e39769e1b875d9958c337fe987b9d14a9429427436",
+      "oracle_hash": "b3ec68513d4cbbde02d19ccb58975df83f3b54359037f4d11e9b7faf67d5f117"
+    },
+    {
+      "id": "resolution-heldout-1",
+      "split": "heldout",
+      "family": "resolution",
+      "template_group": "size_alias",
+      "task_hash": "9b0f3f454f5d828579f5c6739096a0b7d6720e94217850ae3a946e0e91862a00",
+      "oracle_hash": "833bd914c196472ae0f0ad26f317821f4cc24f6f74403b3eeb75a9872e0e12f8"
+    },
+    {
+      "id": "resolution-heldout-2",
+      "split": "heldout",
+      "family": "resolution",
+      "template_group": "size_alias",
+      "task_hash": "40ea63159be8cb7ceeebd5e8664b08e2a2e0e176c263744a1b01501d864271be",
+      "oracle_hash": "137386bab03c12807fef83b7c2fedfcf83e4915f7bbd76e00271c8af894a2d84"
+    },
+    {
+      "id": "resolution-heldout-3",
+      "split": "heldout",
+      "family": "resolution",
+      "template_group": "size_alias",
+      "task_hash": "2ab74a24df609b53253701b1fc277d50d1b930a5bac0263c4e7962fbc46db791",
+      "oracle_hash": "1482c94744da905196d57492812c39534dfedc1bb8ad0dc785186676ea68a531"
+    },
+    {
+      "id": "resolution-heldout-4",
+      "split": "heldout",
+      "family": "resolution",
+      "template_group": "size_alias",
+      "task_hash": "2e4b9b2d3cd8b5cb7fa55cc3655dfed20f323750a4dd661f7af70d43c1a0e2d4",
+      "oracle_hash": "2baa2820355971dc39f65ba777389f484c7009af460c996de93a2a47518c7908"
+    },
+    {
+      "id": "amendment-development-1",
+      "split": "development",
+      "family": "amendment",
+      "template_group": "absolute_quantity",
+      "task_hash": "a35caa9bd7d9e381c1de32a25aa4ca2ccc4b78947f285de6b67875220dc25e25",
+      "oracle_hash": "53023c2bfbf6eb58f327f39c82fbbd0ffb294e99abd34b8a12a3c5a5591825fa"
+    },
+    {
+      "id": "amendment-development-2",
+      "split": "development",
+      "family": "amendment",
+      "template_group": "absolute_quantity",
+      "task_hash": "1b52aa662e76b0dab004fe3c78296791ec6b7ca9ebccd53a1d051683a6f380c6",
+      "oracle_hash": "ef0bd8120ec8bf7dbecea0d5f663f22739b952ecaa3fea663d69c75307323c49"
+    },
+    {
+      "id": "amendment-development-3",
+      "split": "development",
+      "family": "amendment",
+      "template_group": "absolute_quantity",
+      "task_hash": "0f34524366222d2ae072d9cdbfd01a1057b6bcc5cdf07167424fb5923503700f",
+      "oracle_hash": "57ef20a8b7adccdc005f4f858c813dd42a6fc69136fe7799db30343d82ee69f1"
+    },
+    {
+      "id": "amendment-development-4",
+      "split": "development",
+      "family": "amendment",
+      "template_group": "absolute_quantity",
+      "task_hash": "9e1362436559c01bac1e929e693583fcab4226c196b9ebf28674d5e8ed059b49",
+      "oracle_hash": "ae764e13de107fb0506e7e4606c93088d9311347feb7ae99469443e0987ad902"
+    },
+    {
+      "id": "amendment-heldout-1",
+      "split": "heldout",
+      "family": "amendment",
+      "template_group": "relative_quantity",
+      "task_hash": "f7736126664f4e3aeb61c63e9cc3a5c00eaeab2934bab112ae00c02796b4d220",
+      "oracle_hash": "488dab282e0eb423e0d9b74ab70a01b81c7fbb303126ef2c2b0c1c853968ba7d"
+    },
+    {
+      "id": "amendment-heldout-2",
+      "split": "heldout",
+      "family": "amendment",
+      "template_group": "relative_quantity",
+      "task_hash": "b39fece0e5c8f6e003b7193bcfe0546292d7ad60d04543bf998b78d7aea1980a",
+      "oracle_hash": "0689289e078b57b28d3dfa8fa52677806db8c555623625554b852133f4a104b5"
+    },
+    {
+      "id": "amendment-heldout-3",
+      "split": "heldout",
+      "family": "amendment",
+      "template_group": "relative_quantity",
+      "task_hash": "7445caba95f00acbfde632c1f5d7eead1a9b730a9f5991a99f279de8529e2b5c",
+      "oracle_hash": "c162b2509865cbd5dd0dfbec202544085c730026e11c23a77fbbf483ec0c643e"
+    },
+    {
+      "id": "amendment-heldout-4",
+      "split": "heldout",
+      "family": "amendment",
+      "template_group": "relative_quantity",
+      "task_hash": "1a87f59823b5e804eea484700b6b76bca25e43536bb065a218ac4654120ba822",
+      "oracle_hash": "9062b0938ea258c3663e60c5fbe2a672824988130e65d57ec10b825f4a5d9d07"
+    },
+    {
+      "id": "returns-development-1",
+      "split": "development",
+      "family": "returns",
+      "template_group": "ordinary_return",
+      "task_hash": "dbefe9dbe40e9a1652b9083ba2b8d2c5053e4727e98d2cf081a8195f031426b3",
+      "oracle_hash": "79421b9818760cb32c407dfae77ebc3bcc3cf8f1198331d780b10e0a2fc4a126"
+    },
+    {
+      "id": "returns-development-2",
+      "split": "development",
+      "family": "returns",
+      "template_group": "ordinary_return",
+      "task_hash": "2c7f29ddb47b6d0aa5c373d84268779ceb476532c571bd228669d7ee29eb8bdc",
+      "oracle_hash": "949ceb692b80fad0a5dbd188cdd785ee671ccf7420440b8b684e165b4a3df9ca"
+    },
+    {
+      "id": "returns-development-3",
+      "split": "development",
+      "family": "returns",
+      "template_group": "ordinary_return",
+      "task_hash": "73187460e4660d2ebbaa75acf6668777a5118be6e55bcbd8383a8182d3d888c7",
+      "oracle_hash": "a57074d5e74b0380a9c2a6373e79b4bc67375ae86e736c3ca2f1c935f4176ada"
+    },
+    {
+      "id": "returns-development-4",
+      "split": "development",
+      "family": "returns",
+      "template_group": "ordinary_return",
+      "task_hash": "e5d4658ecb78db1c8da43ddd490c4a25661e892f98ab6e511192b1d77a48e4af",
+      "oracle_hash": "3583bd90c6a62a117419c4ccac1c611e03ecb123f2ec225380ce8ec1d6d1722b"
+    },
+    {
+      "id": "returns-heldout-1",
+      "split": "heldout",
+      "family": "returns",
+      "template_group": "previous_partial_return",
+      "task_hash": "a5ac82b0af3cbebb5113c2d2cbd04fa907ee35db72d33bba8959b5733a882e44",
+      "oracle_hash": "a7f84609f6695e0da92134e4b5359bb9989efd104d18ff0b12b35b1cb354aeec"
+    },
+    {
+      "id": "returns-heldout-2",
+      "split": "heldout",
+      "family": "returns",
+      "template_group": "previous_partial_return",
+      "task_hash": "e939b977601d4c96a90e7a0a9ca2e0e604e56a2f0983b534091bdbebdaae5179",
+      "oracle_hash": "bac0f6ef54dec10f8b04a101b05419d45eb864a6c3b3a8faf3f835f9f6f6e2cf"
+    },
+    {
+      "id": "returns-heldout-3",
+      "split": "heldout",
+      "family": "returns",
+      "template_group": "previous_partial_return",
+      "task_hash": "b716d8c0eb3f784d4594f8143787af822696331cf84d01d38e6042dd0e2f4a3e",
+      "oracle_hash": "50053b80e4dbf3527085f4225f26451775bb299fbfe96f1ceb3c31dead463bac"
+    },
+    {
+      "id": "returns-heldout-4",
+      "split": "heldout",
+      "family": "returns",
+      "template_group": "previous_partial_return",
+      "task_hash": "acd090f323da8ee5102390a78c3cf3203d0eccbbbcdf1d42082e4bb12109f099",
+      "oracle_hash": "04cbf512610e179d558b5d7c86b24bb0a9f84e9094b62f2eb62f9e314d1cf121"
+    },
+    {
+      "id": "analysis-development-1",
+      "split": "development",
+      "family": "analysis",
+      "template_group": "units_per_order",
+      "task_hash": "cd4cadcb023824dd0f0f47e3c2d778216f0915eee91db1d99add818806e2a74d",
+      "oracle_hash": "d406b334a69b8a2def0108139ddd691c8e771065e321759dd568b9fa9000a53a"
+    },
+    {
+      "id": "analysis-development-2",
+      "split": "development",
+      "family": "analysis",
+      "template_group": "units_per_order",
+      "task_hash": "ecdb5540a936381e36ae6c084c0dbad08ec022e3462cab85cc9315910c1ff40b",
+      "oracle_hash": "5fd666d1ca6517183b5b394f819ab2a2e3c6cf471c439f2c15e167ed20886713"
+    },
+    {
+      "id": "analysis-development-3",
+      "split": "development",
+      "family": "analysis",
+      "template_group": "units_per_order",
+      "task_hash": "2485e630932e38cc636bffe97433e7191d968f5a54c01cddba7f99a7487c2037",
+      "oracle_hash": "ff945b50557c5e869b1f9f562418e1062a202edfe91ccb56c2f280827c7d4aba"
+    },
+    {
+      "id": "analysis-development-4",
+      "split": "development",
+      "family": "analysis",
+      "template_group": "units_per_order",
+      "task_hash": "6a2a7d08525433ea47bd135f35257b22b0bca534205aa91c9eea4297ff4a7160",
+      "oracle_hash": "11f71f0f10db1556b52b1be4d01fd889935f2a5b0bf713725a1371f4b9c2c9a2"
+    },
+    {
+      "id": "analysis-heldout-1",
+      "split": "heldout",
+      "family": "analysis",
+      "template_group": "value_date_filter",
+      "task_hash": "9299be8bd0042c12b62bc9cb51a83c0d8309036624e30b09b2c43a277d27c060",
+      "oracle_hash": "a3fef55e854eee0442d09a925ef0dad49bed24e41ea9bd88ba42c71d78b1d3a1"
+    },
+    {
+      "id": "analysis-heldout-2",
+      "split": "heldout",
+      "family": "analysis",
+      "template_group": "value_date_filter",
+      "task_hash": "b14ba5e21573797cfc1c982b5a57d190840304065ef42e4d13643228e7bfb285",
+      "oracle_hash": "c159054868fac4b5706edd54b96b96ffffc099afbcac7009c20af87663ff59f4"
+    },
+    {
+      "id": "analysis-heldout-3",
+      "split": "heldout",
+      "family": "analysis",
+      "template_group": "value_date_filter",
+      "task_hash": "37047bf9316132e52e2c5fdf9a8433469f1f53d9bfb44914d68c12c4b36c9376",
+      "oracle_hash": "560f14535a9b4350d669f1579ca95336a091732a6440542f87c615805ff3a4ca"
+    },
+    {
+      "id": "analysis-heldout-4",
+      "split": "heldout",
+      "family": "analysis",
+      "template_group": "value_date_filter",
+      "task_hash": "0d6caddcfce986f8dd8496faf66d579ed38aef5de669d25d5aebd06ae25f4a36",
+      "oracle_hash": "56ce0f2117e37887f0352f12d8be80d7ad8010bc5af44bc0341de33e42cb0b15"
+    },
+    {
+      "id": "ambiguity-development-1",
+      "split": "development",
+      "family": "ambiguity",
+      "template_group": "missing_quantity_or_stock",
+      "task_hash": "3dc0f4571084c5bfb07aa277938c7c2f07f68d4e1d07a69e3edc65c3629dad1a",
+      "oracle_hash": "96460f44ce3136ae702dea169b7a7217db94b42da7e3df17421bf3ef720dd2a3"
+    },
+    {
+      "id": "ambiguity-development-2",
+      "split": "development",
+      "family": "ambiguity",
+      "template_group": "missing_quantity_or_stock",
+      "task_hash": "841c705e68ce3e218afb7e5ec29f872b7f38d6ed0e34aba057f06842fbafdffd",
+      "oracle_hash": "68c6b302f2b3aa8a2076c17adf245a073563c9924b00d6539d6072b9451e368a"
+    },
+    {
+      "id": "ambiguity-development-3",
+      "split": "development",
+      "family": "ambiguity",
+      "template_group": "missing_quantity_or_stock",
+      "task_hash": "4294accf444238d9cd87a3ccc98bf3917e0ccd625cf7b5489f98fb55b403d385",
+      "oracle_hash": "1bc7a2e130e217035b0fd3db32e22953d15085d85259dbb0d88ffe205f071082"
+    },
+    {
+      "id": "ambiguity-development-4",
+      "split": "development",
+      "family": "ambiguity",
+      "template_group": "missing_quantity_or_stock",
+      "task_hash": "86d26cccddce19a48b29303c0cb3374aedd79d35039aed6d935a054c1c3766d0",
+      "oracle_hash": "c35c97eaf8a2f7553d2b40ce40240fdb7ccfb1cc6ede5c78342a7266b058ac4e"
+    },
+    {
+      "id": "ambiguity-heldout-1",
+      "split": "heldout",
+      "family": "ambiguity",
+      "template_group": "missing_request_or_variant_stock",
+      "task_hash": "f2c924724c5c7c35da44729c240f691e40e1e08e8741ad29a51e8a425189787d",
+      "oracle_hash": "0894ffc5ec29fc7ebf1395302ee55e8ab37bb56f1d9f7fb1467874bb130d3333"
+    },
+    {
+      "id": "ambiguity-heldout-2",
+      "split": "heldout",
+      "family": "ambiguity",
+      "template_group": "missing_request_or_variant_stock",
+      "task_hash": "486dc120944de4e19dde3954fc25294483f4845008687f129bf12bc4da719c01",
+      "oracle_hash": "daf166d319be732dcb9800b38eea77cec446c2a03679922da2bb4a57d0c7c4ba"
+    },
+    {
+      "id": "ambiguity-heldout-3",
+      "split": "heldout",
+      "family": "ambiguity",
+      "template_group": "missing_request_or_variant_stock",
+      "task_hash": "1edfef897d8c6c993bbbf9b5f39d895af1b5a51549081a2ccfa09dd0e483c6b5",
+      "oracle_hash": "e7482ea585e250308a89aa7f5afe79572988feca31f7d70dc1448b88a64b6cd7"
+    },
+    {
+      "id": "ambiguity-heldout-4",
+      "split": "heldout",
+      "family": "ambiguity",
+      "template_group": "missing_request_or_variant_stock",
+      "task_hash": "64e56f87cc6b73c289d2a5cba07f960a7e4b14b6ead332f90eb78e4d53eb96e6",
+      "oracle_hash": "08150a74464752c7ace2f6188dca97c044e0f8a43ac507a7fac4cd083694e7f5"
+    }
+  ]
+}

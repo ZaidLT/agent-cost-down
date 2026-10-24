@@ -1,0 +1,24 @@
+name: Quickstart feedback
+description: Report an actual installation attempt or completed first run
+title: "Quickstart: "
+body:
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Outcome
+      options:
+        - Completed offline explorer
+        - Completed bounded real run
+        - Blocked before completion
+    validations:
+      required: true
+  - type: textarea
+    id: timing
+    attributes:
+      label: Setup time and environment
+      description: Exclude account provisioning and model wait time. Do not include credentials or private prompts.
+  - type: textarea
+    id: blocker
+    attributes:
+      label: What should we improve?
+      description: Policy used, setup blocker, or unexpected behavior.

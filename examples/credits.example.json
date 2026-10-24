@@ -1,0 +1,9 @@
+{
+  "confirmed_at": null,
+  "expires_at": null,
+  "usable_usd_after_liabilities": null,
+  "promotional_only": false,
+  "billing_overage_acknowledged": false,
+  "topups_disabled": false,
+  "evidence_reference": null
+}

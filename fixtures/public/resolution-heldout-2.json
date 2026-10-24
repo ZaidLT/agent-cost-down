@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "resolution-heldout-2",
+  "adapter": "orders",
+  "family": "resolution",
+  "split": "heldout",
+  "template_group": "size_alias",
+  "request": "In O1016, move my black shirt up from medium to large. Keep its color, quantity, and the other items unchanged.",
+  "customer_id": "C1016",
+  "as_of": "2026-10-24",
+  "snapshot": "snapshots/resolution-heldout-2.json",
+  "snapshot_hash": "6f28226cbf95989546707647721da2c3a2126f8f1300164bee7ebaf66ee55113",
+  "rules": {
+    "return_days": 30,
+    "amendable_status": "open"
+  }
+}

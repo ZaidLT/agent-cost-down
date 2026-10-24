@@ -1,0 +1,703 @@
+{
+  "$defs": {
+    "AttemptResult": {
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "verdict": {
+          "title": "Verdict",
+          "type": "string"
+        },
+        "resolution": {
+          "title": "Resolution",
+          "type": "string"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Result"
+        },
+        "failure_context": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FailureContext"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "events": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Events",
+          "type": "array"
+        },
+        "usage": {
+          "items": {
+            "$ref": "#/$defs/Usage"
+          },
+          "title": "Usage",
+          "type": "array"
+        },
+        "normalized_calls": {
+          "default": 0,
+          "title": "Normalized Calls",
+          "type": "integer"
+        },
+        "parsed_calls": {
+          "default": 0,
+          "title": "Parsed Calls",
+          "type": "integer"
+        },
+        "duration_ms": {
+          "title": "Duration Ms",
+          "type": "number"
+        },
+        "state_hash": {
+          "title": "State Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model",
+        "verdict",
+        "resolution",
+        "duration_ms",
+        "state_hash"
+      ],
+      "title": "AttemptResult",
+      "type": "object"
+    },
+    "FailureContext": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "source_model": {
+          "maxLength": 200,
+          "title": "Source Model",
+          "type": "string"
+        },
+        "attempt_number": {
+          "const": 1,
+          "title": "Attempt Number",
+          "type": "integer"
+        },
+        "restart_from_original_state": {
+          "const": true,
+          "title": "Restart From Original State",
+          "type": "boolean"
+        },
+        "reason": {
+          "enum": [
+            "parse_failed",
+            "tool_schema_failed",
+            "runtime_validation_failed",
+            "attempt_budget_exhausted"
+          ],
+          "title": "Reason",
+          "type": "string"
+        },
+        "observations": {
+          "items": {
+            "$ref": "#/$defs/Observation"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Observations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "source_model",
+        "attempt_number",
+        "restart_from_original_state",
+        "reason",
+        "observations"
+      ],
+      "title": "FailureContext",
+      "type": "object"
+    },
+    "Limits": {
+      "additionalProperties": false,
+      "properties": {
+        "model_steps": {
+          "default": 8,
+          "maximum": 8,
+          "minimum": 1,
+          "title": "Model Steps",
+          "type": "integer"
+        },
+        "tool_calls": {
+          "default": 20,
+          "maximum": 20,
+          "minimum": 1,
+          "title": "Tool Calls",
+          "type": "integer"
+        },
+        "deadline_seconds": {
+          "default": 180,
+          "maximum": 600,
+          "minimum": 1,
+          "title": "Deadline Seconds",
+          "type": "integer"
+        },
+        "output_tokens": {
+          "default": 4096,
+          "maximum": 8192,
+          "minimum": 128,
+          "title": "Output Tokens",
+          "type": "integer"
+        },
+        "request_bytes": {
+          "default": 32768,
+          "maximum": 65536,
+          "minimum": 1024,
+          "title": "Request Bytes",
+          "type": "integer"
+        },
+        "transport_retries": {
+          "default": 2,
+          "maximum": 2,
+          "minimum": 0,
+          "title": "Transport Retries",
+          "type": "integer"
+        }
+      },
+      "title": "Limits",
+      "type": "object"
+    },
+    "ModelSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "input_usd_per_million": {
+          "minimum": 0,
+          "title": "Input Usd Per Million",
+          "type": "number"
+        },
+        "output_usd_per_million": {
+          "minimum": 0,
+          "title": "Output Usd Per Million",
+          "type": "number"
+        },
+        "settings": {
+          "additionalProperties": true,
+          "title": "Settings",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "input_usd_per_million",
+        "output_usd_per_million"
+      ],
+      "title": "ModelSpec",
+      "type": "object"
+    },
+    "Observation": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "INVALID_JSON",
+            "INVALID_ARGUMENT_TYPE",
+            "MISSING_REQUIRED_FIELD",
+            "UNKNOWN_TOOL",
+            "BUSINESS_RULE_VIOLATION",
+            "STEP_LIMIT"
+          ],
+          "title": "Code",
+          "type": "string"
+        },
+        "tool": {
+          "anyOf": [
+            {
+              "enum": [
+                "search_products",
+                "list_orders",
+                "get_order",
+                "check_stock",
+                "get_rules",
+                "read_only_sql",
+                "submit_draft",
+                "submit_answer",
+                "clarify",
+                "refuse",
+                "reserve_inventory"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tool"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Field"
+        },
+        "expected_type": {
+          "anyOf": [
+            {
+              "enum": [
+                "string",
+                "integer",
+                "number",
+                "boolean",
+                "object",
+                "array",
+                "null"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Expected Type"
+        },
+        "observed_type": {
+          "anyOf": [
+            {
+              "enum": [
+                "string",
+                "integer",
+                "number",
+                "boolean",
+                "object",
+                "array",
+                "null"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Observed Type"
+        }
+      },
+      "required": [
+        "code",
+        "tool",
+        "field",
+        "expected_type",
+        "observed_type"
+      ],
+      "title": "Observation",
+      "type": "object"
+    },
+    "Outcome": {
+      "additionalProperties": false,
+      "properties": {
+        "success": {
+          "title": "Success",
+          "type": "boolean"
+        },
+        "critical_error": {
+          "title": "Critical Error",
+          "type": "boolean"
+        },
+        "checks": {
+          "additionalProperties": {
+            "type": "boolean"
+          },
+          "title": "Checks",
+          "type": "object"
+        }
+      },
+      "required": [
+        "success",
+        "critical_error",
+        "checks"
+      ],
+      "title": "Outcome",
+      "type": "object"
+    },
+    "PolicyConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "adapter": {
+          "default": "orders",
+          "enum": [
+            "orders",
+            "inventory"
+          ],
+          "title": "Adapter",
+          "type": "string"
+        },
+        "models": {
+          "items": {
+            "$ref": "#/$defs/ModelSpec"
+          },
+          "maxItems": 2,
+          "minItems": 1,
+          "title": "Models",
+          "type": "array"
+        },
+        "limits": {
+          "$ref": "#/$defs/Limits"
+        },
+        "validator_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Validator Version",
+          "type": "string"
+        },
+        "parser_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Parser Version",
+          "type": "string"
+        },
+        "supporting_report": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Supporting Report"
+        },
+        "price_source": {
+          "title": "Price Source",
+          "type": "string"
+        },
+        "prices_verified_at": {
+          "title": "Prices Verified At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "models",
+        "price_source",
+        "prices_verified_at"
+      ],
+      "title": "PolicyConfig",
+      "type": "object"
+    },
+    "PublicTask": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "adapter": {
+          "default": "orders",
+          "enum": [
+            "orders",
+            "inventory"
+          ],
+          "title": "Adapter",
+          "type": "string"
+        },
+        "family": {
+          "title": "Family",
+          "type": "string"
+        },
+        "split": {
+          "enum": [
+            "development",
+            "heldout",
+            "demo"
+          ],
+          "title": "Split",
+          "type": "string"
+        },
+        "template_group": {
+          "title": "Template Group",
+          "type": "string"
+        },
+        "request": {
+          "maxLength": 4000,
+          "title": "Request",
+          "type": "string"
+        },
+        "customer_id": {
+          "title": "Customer Id",
+          "type": "string"
+        },
+        "as_of": {
+          "title": "As Of",
+          "type": "string"
+        },
+        "snapshot": {
+          "title": "Snapshot",
+          "type": "string"
+        },
+        "snapshot_hash": {
+          "title": "Snapshot Hash",
+          "type": "string"
+        },
+        "rules": {
+          "additionalProperties": true,
+          "title": "Rules",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "family",
+        "split",
+        "template_group",
+        "request",
+        "customer_id",
+        "as_of",
+        "snapshot",
+        "snapshot_hash",
+        "rules"
+      ],
+      "title": "PublicTask",
+      "type": "object"
+    },
+    "Usage": {
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "input_tokens": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Input Tokens"
+        },
+        "output_tokens": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Output Tokens"
+        },
+        "estimated_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimated Usd"
+        },
+        "duration_ms": {
+          "title": "Duration Ms",
+          "type": "number"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Request Id"
+        }
+      },
+      "required": [
+        "model",
+        "duration_ms",
+        "status"
+      ],
+      "title": "Usage",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "created_at": {
+      "title": "Created At",
+      "type": "string"
+    },
+    "source": {
+      "enum": [
+        "live",
+        "benchmark",
+        "test_fixture"
+      ],
+      "title": "Source",
+      "type": "string"
+    },
+    "task": {
+      "$ref": "#/$defs/PublicTask"
+    },
+    "task_hash": {
+      "title": "Task Hash",
+      "type": "string"
+    },
+    "policy": {
+      "$ref": "#/$defs/PolicyConfig"
+    },
+    "policy_hash": {
+      "title": "Policy Hash",
+      "type": "string"
+    },
+    "repetition": {
+      "title": "Repetition",
+      "type": "integer"
+    },
+    "attempts": {
+      "items": {
+        "$ref": "#/$defs/AttemptResult"
+      },
+      "title": "Attempts",
+      "type": "array"
+    },
+    "verdict": {
+      "title": "Verdict",
+      "type": "string"
+    },
+    "resolution": {
+      "title": "Resolution",
+      "type": "string"
+    },
+    "outcome": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Outcome"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "before": {
+      "additionalProperties": true,
+      "title": "Before",
+      "type": "object"
+    },
+    "after": {
+      "additionalProperties": true,
+      "title": "After",
+      "type": "object"
+    },
+    "total_estimated_usd": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Total Estimated Usd"
+    },
+    "measurement_complete": {
+      "title": "Measurement Complete",
+      "type": "boolean"
+    },
+    "duration_ms": {
+      "title": "Duration Ms",
+      "type": "number"
+    },
+    "elapsed_queue_ms": {
+      "default": 0,
+      "title": "Elapsed Queue Ms",
+      "type": "number"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "source",
+    "task",
+    "task_hash",
+    "policy",
+    "policy_hash",
+    "repetition",
+    "attempts",
+    "verdict",
+    "resolution",
+    "before",
+    "after",
+    "total_estimated_usd",
+    "measurement_complete",
+    "duration_ms"
+  ],
+  "title": "RunRecord",
+  "type": "object"
+}

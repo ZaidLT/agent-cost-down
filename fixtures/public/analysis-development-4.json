@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "analysis-development-4",
+  "adapter": "orders",
+  "family": "analysis",
+  "split": "development",
+  "template_group": "units_per_order",
+  "request": "How many units are in each of my orders? Return order_id and units, sorted by order_id.",
+  "customer_id": "C1309",
+  "as_of": "2026-10-24",
+  "snapshot": "snapshots/analysis-development-4.json",
+  "snapshot_hash": "8070dc83172a588768310ce4529afde7455f93178e33cc8c6a5f7a7d21abc28b",
+  "rules": {
+    "return_days": 30,
+    "amendable_status": "open"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "amendment-development-3",
+  "adapter": "orders",
+  "family": "amendment",
+  "split": "development",
+  "template_group": "absolute_quantity",
+  "request": "Change the tee quantity in order O1108 to 5. Leave the mug alone.",
+  "customer_id": "C1108",
+  "as_of": "2026-10-24",
+  "snapshot": "snapshots/amendment-development-3.json",
+  "snapshot_hash": "fd4907183092343a8643c7e9098fd44a2f6aa0d641adb63507dba0949c92a91b",
+  "rules": {
+    "return_days": 30,
+    "amendable_status": "open"
+  }
+}

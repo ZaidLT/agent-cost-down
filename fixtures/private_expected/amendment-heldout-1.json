@@ -1,0 +1,111 @@
+{
+  "task_id": "amendment-heldout-1",
+  "resolution": "changed",
+  "expected_state": {
+    "products": [
+      {
+        "sku": "BLACK-L",
+        "name": "Everyday tee",
+        "color": "black",
+        "size": "large",
+        "unit_cents": 2700
+      },
+      {
+        "sku": "BLACK-M",
+        "name": "Everyday tee",
+        "color": "black",
+        "size": "medium",
+        "unit_cents": 2500
+      },
+      {
+        "sku": "BLUE-M",
+        "name": "Everyday tee",
+        "color": "blue",
+        "size": "medium",
+        "unit_cents": 2500
+      },
+      {
+        "sku": "MUG",
+        "name": "Studio mug",
+        "color": "white",
+        "size": "standard",
+        "unit_cents": 1800
+      }
+    ],
+    "stock": [
+      {
+        "sku": "BLACK-L",
+        "available": 22
+      },
+      {
+        "sku": "BLACK-M",
+        "available": 15
+      },
+      {
+        "sku": "BLUE-M",
+        "available": 7
+      },
+      {
+        "sku": "MUG",
+        "available": 12
+      }
+    ],
+    "orders": [
+      {
+        "id": "O1113",
+        "customer_id": "C1113",
+        "status": "open",
+        "created_at": "2026-10-20"
+      },
+      {
+        "id": "O1113B",
+        "customer_id": "C1113",
+        "status": "delivered",
+        "created_at": "2026-10-14"
+      },
+      {
+        "id": "O1113X",
+        "customer_id": "OTHER",
+        "status": "open",
+        "created_at": "2026-10-20"
+      }
+    ],
+    "lines": [
+      {
+        "id": "L1113",
+        "order_id": "O1113",
+        "sku": "BLUE-M",
+        "quantity": 7,
+        "returned": 0
+      },
+      {
+        "id": "L1113B",
+        "order_id": "O1113",
+        "sku": "MUG",
+        "quantity": 1,
+        "returned": 0
+      },
+      {
+        "id": "L1113C",
+        "order_id": "O1113B",
+        "sku": "BLACK-M",
+        "quantity": 3,
+        "returned": 0
+      },
+      {
+        "id": "L1113X",
+        "order_id": "O1113X",
+        "sku": "MUG",
+        "quantity": 7,
+        "returned": 0
+      }
+    ]
+  },
+  "details": {
+    "operation": "quantity",
+    "order_id": "O1113",
+    "line_id": "L1113",
+    "value": 7
+  },
+  "review_status": "pending_human_review"
+}

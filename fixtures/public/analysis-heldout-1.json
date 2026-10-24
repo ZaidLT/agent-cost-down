@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "analysis-heldout-1",
+  "adapter": "orders",
+  "family": "analysis",
+  "split": "heldout",
+  "template_group": "value_date_filter",
+  "request": "For my open orders created since 2026-10-15, total the line value in cents. Return a single row with total_cents.",
+  "customer_id": "C1312",
+  "as_of": "2026-10-24",
+  "snapshot": "snapshots/analysis-heldout-1.json",
+  "snapshot_hash": "81f29f728b28148407248c57c6b323d7c97db03f3df1c6bcfa33ba83336b08de",
+  "rules": {
+    "return_days": 30,
+    "amendable_status": "open"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "resolution-development-4",
+  "adapter": "orders",
+  "family": "resolution",
+  "split": "development",
+  "template_group": "color_alias",
+  "request": "In order O1009, replace the blue medium tee with the black tee in the same size. Keep quantities and the mug unchanged.",
+  "customer_id": "C1009",
+  "as_of": "2026-10-24",
+  "snapshot": "snapshots/resolution-development-4.json",
+  "snapshot_hash": "c857e12f84b44d86f783682b1e875841ec77a2e5cf9be7bacd4aaea5d7e5e039",
+  "rules": {
+    "return_days": 30,
+    "amendable_status": "open"
+  }
+}

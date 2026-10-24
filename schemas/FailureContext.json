@@ -1,0 +1,158 @@
+{
+  "$defs": {
+    "Observation": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "INVALID_JSON",
+            "INVALID_ARGUMENT_TYPE",
+            "MISSING_REQUIRED_FIELD",
+            "UNKNOWN_TOOL",
+            "BUSINESS_RULE_VIOLATION",
+            "STEP_LIMIT"
+          ],
+          "title": "Code",
+          "type": "string"
+        },
+        "tool": {
+          "anyOf": [
+            {
+              "enum": [
+                "search_products",
+                "list_orders",
+                "get_order",
+                "check_stock",
+                "get_rules",
+                "read_only_sql",
+                "submit_draft",
+                "submit_answer",
+                "clarify",
+                "refuse",
+                "reserve_inventory"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tool"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Field"
+        },
+        "expected_type": {
+          "anyOf": [
+            {
+              "enum": [
+                "string",
+                "integer",
+                "number",
+                "boolean",
+                "object",
+                "array",
+                "null"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Expected Type"
+        },
+        "observed_type": {
+          "anyOf": [
+            {
+              "enum": [
+                "string",
+                "integer",
+                "number",
+                "boolean",
+                "object",
+                "array",
+                "null"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Observed Type"
+        }
+      },
+      "required": [
+        "code",
+        "tool",
+        "field",
+        "expected_type",
+        "observed_type"
+      ],
+      "title": "Observation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "source_model": {
+      "maxLength": 200,
+      "title": "Source Model",
+      "type": "string"
+    },
+    "attempt_number": {
+      "const": 1,
+      "title": "Attempt Number",
+      "type": "integer"
+    },
+    "restart_from_original_state": {
+      "const": true,
+      "title": "Restart From Original State",
+      "type": "boolean"
+    },
+    "reason": {
+      "enum": [
+        "parse_failed",
+        "tool_schema_failed",
+        "runtime_validation_failed",
+        "attempt_budget_exhausted"
+      ],
+      "title": "Reason",
+      "type": "string"
+    },
+    "observations": {
+      "items": {
+        "$ref": "#/$defs/Observation"
+      },
+      "maxItems": 3,
+      "minItems": 1,
+      "title": "Observations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "source_model",
+    "attempt_number",
+    "restart_from_original_state",
+    "reason",
+    "observations"
+  ],
+  "title": "FailureContext",
+  "type": "object"
+}

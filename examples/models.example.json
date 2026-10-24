@@ -1,0 +1,11 @@
+{
+  "verified_at": null,
+  "price_source": null,
+  "rpm": null,
+  "tpm": null,
+  "models": {
+    "small": {"id": null, "input_usd_per_million": null, "output_usd_per_million": null, "settings": {"temperature": 0}},
+    "super": {"id": null, "input_usd_per_million": null, "output_usd_per_million": null, "settings": {"temperature": 0}},
+    "ultra": {"id": null, "input_usd_per_million": null, "output_usd_per_million": null, "settings": {"temperature": 0}}
+  }
+}

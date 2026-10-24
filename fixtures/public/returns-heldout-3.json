@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "returns-heldout-3",
+  "adapter": "orders",
+  "family": "returns",
+  "split": "heldout",
+  "template_group": "previous_partial_return",
+  "request": "Return 2 tees from delivered order O1220B.",
+  "customer_id": "C1220",
+  "as_of": "2026-10-24",
+  "snapshot": "snapshots/returns-heldout-3.json",
+  "snapshot_hash": "24e1adfd1843e2f008852140448c8b73ec1bf08966e03600fff09cb6fa7a9f3a",
+  "rules": {
+    "return_days": 30,
+    "amendable_status": "open"
+  }
+}
