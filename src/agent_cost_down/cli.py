@@ -46,7 +46,18 @@ def catalog(args):
 
 
 async def execute(
-    task, snapshot, config, models, output, *, pool, key, repetition=0, source="live", limiter=None
+    task,
+    snapshot,
+    config,
+    models,
+    output,
+    *,
+    pool,
+    key,
+    repetition=0,
+    source="live",
+    limiter=None,
+    max_active=1,
 ):
     from .evaluation.outcomes import evaluate_from_file
 
@@ -71,7 +82,7 @@ async def execute(
             save(output, row["result"])
             return RunRecord.model_validate_json(json.dumps(row["result"]))
         raise Denied("Existing execution is interrupted or incomplete; it will not be silently repeated")
-    if not db.claim("local-cli", config.limits.deadline_seconds + 60, row["id"]):
+    if not db.claim("local-cli", config.limits.deadline_seconds + 60, row["id"], max_active=max_active):
         raise Denied("Another run holds the execution lease")
     provider = TokenFactory(models.rpm, models.tpm, hook=db.hook(row["id"]), limiter=limiter)
     try:
@@ -321,7 +332,10 @@ async def main_async(args):
     elif args.command == "serve":
         import uvicorn
 
-        uvicorn.run("agent_cost_down.api:app", host=args.host, port=args.port, workers=1)
+        server = uvicorn.Server(
+            uvicorn.Config("agent_cost_down.api:app", host=args.host, port=args.port, workers=1)
+        )
+        await server.serve()
 
 
 def main():

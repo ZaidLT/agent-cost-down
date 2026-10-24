@@ -224,13 +224,16 @@ class Ledger:
             con.execute(jobs.insert().values(**row))
             return row
 
-    def claim(self, owner, lease_seconds=660, run_id=None, hosted=False):
+    def claim(self, owner, lease_seconds=660, run_id=None, hosted=False, max_active=1):
+        if max_active not in {1, 2} or (hosted and max_active != 1):
+            raise ValueError("Hosted concurrency is one; local pilots permit at most two")
         with self.transaction() as con:
             self._config(con)
             running = list(con.execute(select(jobs).where(jobs.c.status == "running")).mappings())
+            active = [row for row in running if row["lease_until"] > time.time()]
             for row in running:
-                if row["lease_until"] > time.time():
-                    return None
+                if row in active:
+                    continue
                 con.execute(
                     update(jobs)
                     .where(jobs.c.id == row["id"])
@@ -239,6 +242,8 @@ class Ledger:
                         error="Worker interrupted; uncertain requests will not be replayed",
                     )
                 )
+            if len(active) >= max_active:
+                return None
             queued = list(con.execute(select(jobs).where(jobs.c.status == "queued")).mappings())
             if hosted:
                 queued = [j for j in queued if j["pool"] in {"judge", "public"}]

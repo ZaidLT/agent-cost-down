@@ -2,6 +2,8 @@
 
 Produce a 2 minute 45 second video from actual executions after the measurement gates pass.
 
+A separate silent upload-test clip can be recorded from the local preview with frontend/scripts/record-upload-test.mjs. It is explicitly a scripted illustration and is not the final competition video. The locally prepared clip still needs a channel upload and signed-out playback check; narration/audio checks remain part of the final video work.
+
 ## Approved opening, first twenty seconds
 
 Nebius's cookbook compares agent cost. Agent Cost Down turns that comparison into an executable policy: start small, escalate on runtime failure, measure outcomes with an independent evaluator, then export the configuration and run a fresh task with it.

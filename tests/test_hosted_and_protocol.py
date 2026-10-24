@@ -124,3 +124,6 @@ def test_context_all_fields_required(first):
         del missing[field]
         with pytest.raises(ValidationError):
             FailureContext.model_validate_json(json.dumps(missing))
+    for field in ["schema_version", "attempt_number"]:
+        with pytest.raises(ValidationError):
+            FailureContext.model_validate_json(json.dumps({**context, field: True}))

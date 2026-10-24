@@ -1,4 +1,5 @@
 """Scan only intended public assets and generated artifacts, never private account files."""
+
 import json
 from pathlib import Path
 

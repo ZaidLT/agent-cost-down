@@ -125,6 +125,27 @@ def test_unconfigured_fails_closed(tmp_path):
         submit(db)
 
 
+def test_bounded_local_pilot_concurrency(db):
+    rows = [
+        db.submit(
+            task_id="demo",
+            policy_id="small_only",
+            client="local",
+            key=str(i),
+            pool="development",
+            reserve=1,
+            payload_hash=str(i),
+            hosted=False,
+        )
+        for i in range(3)
+    ]
+    assert db.claim("pilot-1", run_id=rows[0]["id"], max_active=2)
+    assert db.claim("pilot-2", run_id=rows[1]["id"], max_active=2)
+    assert db.claim("pilot-3", run_id=rows[2]["id"], max_active=2) is None
+    with pytest.raises(ValueError):
+        db.claim("hosted", hosted=True, max_active=2)
+
+
 @pytest.mark.skipif(not os.getenv("ACD_TEST_DATABASE_URL"), reason="Requires isolated CI PostgreSQL")
 def test_postgres_concurrent_budget_and_duplicates():
     url = os.environ["ACD_TEST_DATABASE_URL"]

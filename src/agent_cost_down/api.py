@@ -56,6 +56,15 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
             try:
                 task, snapshot = load_task(root, row["task_id"])
                 config = state["policies"][row["policy_id"]]
+                expected_payload = digest(
+                    {
+                        "request": {"task_id": task.id, "policy_id": config.id},
+                        "task_hash": digest(task),
+                        "policy_hash": digest(config),
+                    }
+                )
+                if expected_payload != row["payload_hash"]:
+                    raise ValueError("Queued task or policy changed after admission")
                 provider = (
                     provider_factory(database.hook(row["id"]))
                     if provider_factory
@@ -170,6 +179,7 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
         ).hexdigest()
         config = state["policies"][body.policy_id]
         try:
+            task, _ = load_task(root, body.task_id)
             state["db"].purge_traces()
             row = state["db"].submit(
                 task_id=body.task_id,
@@ -178,7 +188,9 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
                 key=idempotency_key,
                 pool="judge" if judge else "public",
                 reserve=maximum_cost(config),
-                payload_hash=digest(body),
+                payload_hash=digest(
+                    {"request": body.model_dump(), "task_hash": digest(task), "policy_hash": digest(config)}
+                ),
             )
         except Denied as exc:
             raise HTTPException(429, str(exc)) from exc

@@ -111,3 +111,23 @@ def test_conservative_reservation():
     config.models[0].input_usd_per_million = 1
     config.models[1].output_usd_per_million = 10
     assert maximum_cost(config) > 0
+
+
+@pytest.mark.asyncio
+async def test_rate_limit_retries_are_bounded_and_accounted(monkeypatch):
+    import asyncio
+
+    async def no_delay(_):
+        return None
+
+    monkeypatch.setattr(asyncio, "sleep", no_delay)
+    client = httpx.AsyncClient(
+        transport=httpx.MockTransport(lambda _: httpx.Response(429)), base_url="https://example.test/v1/"
+    )
+    provider = TokenFactory(60, 1000000, client)
+    usage = []
+    with pytest.raises(ProviderFailure):
+        await provider.complete(catalog().models["small"], [], [], Limits(), usage)
+    assert len(usage) == 3
+    assert all(u.status == "rate_limited" and u.estimated_usd is None for u in usage)
+    await provider.close()
