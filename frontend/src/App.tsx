@@ -11,6 +11,11 @@ const percent = (n: number | null) => n === null ? 'Unavailable' : (n * 100).toF
 const seconds = (n: number | null) => n === null ? 'Unavailable' : (n / 1000).toFixed(1) + 's'
 const subscribe = (cb: () => void) => { window.addEventListener('hashchange', cb); return () => window.removeEventListener('hashchange', cb) }
 const snapshot = () => window.location.hash.slice(1) || 'compare'
+function stable(value: unknown): string {
+  if (Array.isArray(value)) return '[' + value.map(stable).join(',') + ']'
+  if (value !== null && typeof value === 'object') return '{' + Object.keys(value).sort().map(key => JSON.stringify(key) + ':' + stable((value as Record<string, unknown>)[key])).join(',') + '}'
+  return JSON.stringify(value)
+}
 function Json({value}: {value: unknown}) { return <pre className={s.json}>{JSON.stringify(value, null, 2)}</pre> }
 function Badge({children, bad = false}: {children: React.ReactNode; bad?: boolean}) {
   return <span className={bad ? s.badgeBad : s.badge}>{children}</span>
@@ -99,11 +104,12 @@ function Apply({report, id}: {report: Report; id?: string}) {
   const [liveResult, setLiveResult] = useState<Run | null>(null)
   const [failed, setFailed] = useState(false)
   const [currentRun, setCurrentRun] = useState<string | null>(null)
-  const [catalog, setCatalog] = useState<{tasks: string[]; available: boolean} | null>(null)
+  const [catalog, setCatalog] = useState<{tasks: string[]; available: boolean; configurations: Record<string, Policy>} | null>(null)
   const [copied, setCopied] = useState(false)
   const api = import.meta.env.VITE_API_URL as string | undefined
   const config = report.runs.find(r => r.policy.id === selected)?.policy
   const fixture = report.source === 'test_fixture'
+  const matchesLive = Boolean(config && catalog?.configurations?.[selected] && stable(config) === stable(catalog.configurations[selected]))
   useEffect(() => {
     if (!api) return
     const controller = new AbortController()
@@ -141,7 +147,7 @@ function Apply({report, id}: {report: Report; id?: string}) {
     setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
   async function start() {
-    if (!api || busy) return
+    if (!api || busy || fixture || !matchesLive) return
     setBusy(true); setFailed(false); setLiveResult(null)
     setStatus('Connecting to the live service. A sleeping free service can take a minute to wake.')
     const key = crypto.randomUUID()
@@ -170,7 +176,8 @@ function Apply({report, id}: {report: Report; id?: string}) {
         <label>Task<select value={task} onChange={e => setTask(e.target.value)}>{(catalog?.tasks || ['resolution-development-1']).map(t => <option key={t} value={t}>{t}</option>)}</select></label>
         <label>Judge access code (optional)<input type="password" autoComplete="off" value={judge} onChange={e => setJudge(e.target.value)} /></label>
         <p className={s.hint}>Use the code from the testing instructions. It stays in this page’s memory.</p>
-        <button disabled={busy || !api || !catalog?.available} onClick={start}>{busy ? 'Run in progress' : 'Start live sample'}</button>
+        <button disabled={busy || !api || !catalog?.available || fixture || !matchesLive} onClick={start}>{busy ? 'Run in progress' : 'Start live sample'}</button>
+        {api && catalog && (fixture || !matchesLive) && <p className={s.notice}>Live sampling opens when a measured report and its matching execution configuration are published.</p>}
         {!api && <p className={s.notice}>Live execution is not connected. The report explorer works independently.</p>}
         <p role="status" aria-live="polite">{status}</p>
         {failed && <div className={s.failure}><p>The live attempt remains failed or pending. It has not been replaced with a cached success.</p>

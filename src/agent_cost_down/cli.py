@@ -243,17 +243,29 @@ async def main_async(args):
             return
         # Forecast the batch; reserve the maximum for each run only when it is about to start.
         db = ledger()
-        if frozen:
-            from datetime import UTC, datetime, timedelta
+        from datetime import UTC, datetime, timedelta
 
-            if frozen["forecast_usd"] + max(maximum_cost(c) for c in configs.values()) > db.remaining(
-                "evaluation"
-            ):
+        credits = read_model(args.credits, Credits)
+        credit_age = (datetime.now(UTC) - datetime.fromisoformat(credits.confirmed_at)).total_seconds()
+        if not 0 <= credit_age <= 86400:
+            raise Denied("Recheck actual credits and refresh the evidence file before a large batch")
+        if frozen:
+            remaining_fraction = sum(
+                not (output / "runs" / f"{tid}-{rep}-{pid}.json").exists() for tid, rep, pid in schedule
+            ) / len(schedule)
+            if frozen["forecast_usd"] * remaining_fraction + max(
+                maximum_cost(c) for c in configs.values()
+            ) > db.remaining("evaluation"):
                 raise Denied("Measured forecast plus 50% headroom exceeds the evaluation allocation")
-            if datetime.now(UTC) + timedelta(seconds=frozen["forecast_seconds"]) > datetime(
-                2026, 10, 27, 20, 59, tzinfo=UTC
-            ):
-                raise Denied("Measured forecast misses the October 27 completion window")
+            if args.completion_deadline:
+                finish_by = datetime.fromisoformat(args.completion_deadline)
+                if finish_by.tzinfo is None:
+                    raise ValueError("Completion deadline requires a timezone")
+                if (
+                    datetime.now(UTC) + timedelta(seconds=frozen["forecast_seconds"] * remaining_fraction)
+                    > finish_by
+                ):
+                    raise Denied("Measured forecast misses the requested completion window")
         shared_limiter = RateLimiter(models.rpm, models.tpm)
         for tid, rep, pid in schedule:
             task, snapshot = load_task(root, tid)
@@ -368,6 +380,7 @@ def main():
     p = sub.add_parser("benchmark")
     p.add_argument("--split", choices=["development", "heldout"], default="development")
     p.add_argument("--deadline", type=int, choices=[180, 300, 600], default=180)
+    p.add_argument("--completion-deadline", help="Optional ISO timestamp for the batch scheduling gate")
     p.add_argument("--freeze", default="artifacts/freeze.json")
     p.add_argument("--freeze-from")
     p.add_argument("--output", default="artifacts/batch")

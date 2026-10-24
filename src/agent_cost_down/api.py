@@ -152,6 +152,7 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
             "policies": list(POLICIES),
             "schema_version": 1,
             "policy_hashes": {k: digest(v) for k, v in (state["policies"] or {}).items()},
+            "configurations": {k: v.model_dump(mode="json") for k, v in (state["policies"] or {}).items()},
             "available": available,
             "message": "Live runs require confirmed credit reservations.",
         }

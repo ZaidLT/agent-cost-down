@@ -29,6 +29,8 @@ Run all five policies on twenty development cases. Select the cheapest candidate
 
 The main batch is sequential and interleaved to stay within measured provider limits. Shared rate limiting covers the entire batch. The freeze stores a forecast based on development cost and elapsed time with 50% headroom.
 
+For the competition batch, pass --completion-deadline 2026-10-27T20:59:00+00:00. This enforces the October 27 Istanbul completion window. The date is an explicit scheduling constraint so later independent reproductions remain possible. Resuming preserves prior assignments and forecasts the remaining work. Every large batch requires credit evidence refreshed within twenty-four hours.
+
 ## Held-out evaluation
 
 The assignment contains twenty tasks, three repetitions, and five policies. This is 300 full policy executions, at most 420 agent attempts, and 3,360 model calls before transport retries. Repetitions measure variability; they do not create sixty independent tasks.
