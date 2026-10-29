@@ -34,6 +34,18 @@ class RateLimiter:
                 await asyncio.sleep(max(0.01, 60 - (now - self.calls[0][0])))
 
 
+class DurableRateLimiter:
+    def __init__(self, db, rpm, tpm):
+        self.db, self.rpm, self.tpm = db, rpm, tpm
+
+    async def acquire(self, tokens):
+        while True:
+            delay = self.db.rate_delay(tokens, self.rpm, self.tpm)
+            if not delay:
+                return
+            await asyncio.sleep(delay)
+
+
 def maximum_cost(config):
     limits = config.limits
     # UTF-8 bytes plus protocol overhead conservatively bound input tokens.

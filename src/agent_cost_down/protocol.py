@@ -9,7 +9,7 @@ from .contracts import POLICIES, digest, now, policy
 def code_hash():
     root = Path(__file__).parent
     sources = {str(p.relative_to(root)): p.read_text() for p in sorted(root.rglob("*.py"))}
-    for name in ("uv.lock", "pyproject.toml"):
+    for name in ("uv.lock", "pyproject.toml", "app.py", "worker.py"):
         path = root.parents[1] / name
         if path.exists():
             sources[name] = path.read_text()
@@ -44,6 +44,8 @@ def freeze(root, catalog, limits, development_report, target):
         "policies": configs,
         "development_report_hash": digest(report),
         "selected": report["recommendation"]["selected"],
+        "concurrency": report.get("provenance", {}).get("concurrency", 1),
+        "pilot_hash": report.get("provenance", {}).get("pilot_hash"),
         "heldout_repetitions": 3,
         "assigned_per_policy": 60,
         "total_assigned": 300,

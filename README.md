@@ -24,6 +24,8 @@ npm run dev
 
 Open http://127.0.0.1:5173. Compare five policies, inspect the small-to-Ultra test trace, and export its configuration from Apply. Scripted identifiers cannot call the provider and carry no savings claim.
 
+The repository remains private during preparation; cloning requires authorized GitHub access. Publication requires the owner’s explicit approval.
+
 The repository includes 40 immutable generated tasks. To generate a new version without replacing them:
 
 ```sh
@@ -34,13 +36,13 @@ uv run acd --suite fixtures-v3 generate --seed 20261025 --quantity-base 3 --retu
 
 1. Follow [account readiness](docs/operations.md). Verify promotional credit balance, expiry, card requirements, overage behavior, exact available model IDs, prices, and request/token limits. Credits are not a billing cap.
 2. Copy the templates from examples into the ignored private directory. Replace every null with account-verified values. They intentionally fail validation until completed.
-3. Set NEBIUS_API_KEY only in your local environment. Do not commit it or paste it into a report.
+3. Save NEBIUS_API_KEY in the ignored local .env file. Quotes are optional for an ordinary key. Do not commit it or paste it into a report. Commands below explicitly load .env.
 4. Initialize the durable ledger and start one task.
 
 ```sh
-uv run acd doctor --online
-uv run acd doctor --initialize-ledger
-uv run acd smoke --policy small_only --task resolution-development-1 --output artifacts/live-smoke.json
+uv run --env-file .env acd doctor --online
+uv run --env-file .env acd doctor --initialize-ledger
+uv run --env-file .env acd smoke --policy small_only --task resolution-development-1 --output artifacts/live-smoke.json
 ```
 
 A real smoke run reports the runtime verdict, separate outcome checks, and estimated charge. If usage is missing, the charge remains unknown and its reservation is retained. No uncertain request is automatically repeated.
@@ -49,7 +51,7 @@ Export and apply a policy from a measured report:
 
 ```sh
 uv run acd export-policy --report artifacts/development-report.json --policy small_ultra --output artifacts/policy.json
-uv run acd run --config artifacts/policy.json --task resolution-development-1 --output artifacts/applied.json
+uv run --env-file .env acd run --config artifacts/policy.json --task resolution-development-1 --output artifacts/applied.json
 ```
 
 The loaded file controls the actual runner. Test exports are useful for inspecting the schema but fail the verified-model check for live execution.
@@ -57,12 +59,12 @@ The loaded file controls the actual runner. Test exports are useful for inspecti
 ## Reproduce the comparison
 
 ```sh
-uv run acd benchmark --split development --output artifacts/development
-uv run acd benchmark --split development --output artifacts/development --execute
+uv run --env-file .env acd benchmark --split development --output artifacts/development
+uv run --env-file .env acd benchmark --split development --output artifacts/development --execute
 uv run acd report --input artifacts/development --output artifacts/development-report.json
-uv run acd benchmark --freeze-from artifacts/development-report.json --freeze artifacts/freeze.json
-uv run acd benchmark --split heldout --freeze artifacts/freeze.json --output artifacts/heldout
-uv run acd benchmark --split heldout --freeze artifacts/freeze.json --output artifacts/heldout --execute
+uv run --env-file .env acd benchmark --freeze-from artifacts/development-report.json --freeze artifacts/freeze.json
+uv run --env-file .env acd benchmark --split heldout --freeze artifacts/freeze.json --output artifacts/heldout
+uv run --env-file .env acd benchmark --split heldout --freeze artifacts/freeze.json --output artifacts/heldout --execute
 uv run acd report --input artifacts/heldout --output artifacts/heldout-report.json
 ```
 

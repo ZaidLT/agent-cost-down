@@ -10,6 +10,7 @@ from agent_cost_down.ledger import Credits, Denied, Ledger, metadata, nanos
 
 def funded(url):
     db = Ledger(url)
+    db.initialize_schema()
     db.configure(
         Credits(
             confirmed_at=datetime.now(UTC).isoformat(),
@@ -121,6 +122,7 @@ def test_reconciliation_and_restart(db):
 
 def test_unconfigured_fails_closed(tmp_path):
     db = Ledger("sqlite:///" + str(tmp_path / "empty.db"))
+    db.initialize_schema()
     with pytest.raises(Denied):
         submit(db)
 

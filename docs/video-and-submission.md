@@ -25,10 +25,10 @@ Do not manufacture a rejection inside performance results. If only the determini
 
 Project title: Agent Cost Down.
 Summary: executable agent policies with independent outcome evaluation.
-Track: confirm the current Apps and Agents requirements on Devpost.
-Repository: public MIT repository.
-Demo: deployed Cloudflare URL.
-Video: public YouTube URL, under three minutes, verified signed out.
+Track: Best Apps and Agents.
+Repository: MIT repository, kept private until final publication approval.
+Demo: verified Vercel website URL, with Vercel or Render live backend selected by the pilot.
+Video: YouTube URL, made public only after final approval, under three minutes, verified signed out.
 Testing: fixed task instructions and separate secret judge header instructions.
 Sponsor feedback: actual observed tool support, throttling, latency, documentation, and usage-accounting findings.
 Release: exact submitted commit and immutable report ID.

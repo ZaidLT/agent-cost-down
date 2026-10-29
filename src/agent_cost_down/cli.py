@@ -119,7 +119,9 @@ async def main_async(args):
             "cash_budget_usd": 0,
         }
         if args.initialize_ledger:
-            ledger().configure(read_model(args.credits, Credits))
+            database = ledger()
+            database.initialize_schema()
+            database.configure(read_model(args.credits, Credits))
             info["ledger_initialized"] = True
         if args.online:
             import httpx
@@ -213,7 +215,18 @@ async def main_async(args):
         random.Random(20261026).shuffle(schedule)
         output = Path(args.output)
         output.mkdir(parents=True, exist_ok=True)
+        pilot_hash = None
+        if args.concurrency == 2:
+            from .batch import validate_parallel_pilot
+
+            pilot_hash = validate_parallel_pilot(
+                args.pilot_evidence, models, next(iter(configs.values())).limits
+            )
+        if frozen and (args.concurrency != frozen["concurrency"] or pilot_hash != frozen["pilot_hash"]):
+            raise ValueError("Concurrency or pilot evidence differs from the development freeze")
         assignment = {
+            "concurrency": args.concurrency,
+            "pilot_hash": pilot_hash,
             "split": args.split,
             "schedule": schedule,
             "code_hash": code_hash(),
@@ -267,7 +280,9 @@ async def main_async(args):
                 ):
                     raise Denied("Measured forecast misses the requested completion window")
         shared_limiter = RateLimiter(models.rpm, models.tpm)
-        for tid, rep, pid in schedule:
+
+        async def run_assignment(item):
+            tid, rep, pid = item
             task, snapshot = load_task(root, tid)
             key = digest({"assignment": assignment, "task": tid, "repetition": rep, "policy": pid})
             row = db.submit(
@@ -287,10 +302,10 @@ async def main_async(args):
                 saved = read_model(path, RunRecord)
                 if saved.id != row["id"] or saved.policy_hash != digest(configs[pid]):
                     raise ValueError("Checkpoint provenance mismatch")
-                continue
+                return
             if row["status"] not in {"queued", "complete"}:
                 print(f"Preserving incomplete assigned run {row['id']}; it remains in the denominator.")
-                continue
+                return
             try:
                 await execute(
                     task,
@@ -303,6 +318,7 @@ async def main_async(args):
                     repetition=rep,
                     source="benchmark",
                     limiter=shared_limiter,
+                    max_active=args.concurrency,
                 )
             except Denied:
                 raise
@@ -311,6 +327,10 @@ async def main_async(args):
                     "Execution failed (%s); see the sanitized ledger", type(exc).__name__
                 )
                 print(f"Run failed: {row['id']}. Failure preserved in the ledger.")
+
+        from .batch import run_bounded
+
+        await run_bounded(schedule, run_assignment, args.concurrency)
     elif args.command == "report":
         from .reporting import build_report, read_runs, write_report
 
@@ -380,7 +400,13 @@ def main():
     p = sub.add_parser("benchmark")
     p.add_argument("--split", choices=["development", "heldout"], default="development")
     p.add_argument("--deadline", type=int, choices=[180, 300, 600], default=180)
-    p.add_argument("--completion-deadline", help="Optional ISO timestamp for the batch scheduling gate")
+    p.add_argument(
+        "--completion-deadline",
+        default="2026-10-30T12:00:00+03:00",
+        help="ISO timestamp for the batch scheduling gate",
+    )
+    p.add_argument("--concurrency", type=int, choices=[1, 2], default=1)
+    p.add_argument("--pilot-evidence")
     p.add_argument("--freeze", default="artifacts/freeze.json")
     p.add_argument("--freeze-from")
     p.add_argument("--output", default="artifacts/batch")

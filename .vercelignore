@@ -1,0 +1,14 @@
+.env
+.env.*
+private
+artifacts
+.git
+.venv
+frontend
+tests
+node_modules
+docs
+sources
+**/__pycache__
+**/*.db
+**/*.db-*

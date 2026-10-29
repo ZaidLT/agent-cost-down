@@ -12,6 +12,7 @@ from agent_cost_down.cli import execute, read_model, save
 from agent_cost_down.contracts import Limits, ModelCatalog, digest, policy
 from agent_cost_down.fixtures import load_task
 from agent_cost_down.ledger import Credits
+from agent_cost_down.protocol import code_hash
 from agent_cost_down.provider import RateLimiter, maximum_cost
 from agent_cost_down.reporting import percentile
 
@@ -85,6 +86,8 @@ async def main(args):
     elapsed = time.monotonic() - started
     summary = {
         "source": "live",
+        "code_hash": code_hash(),
+        "records_hash": digest([r.model_dump(mode="json") for r in records]),
         "development_only": True,
         "concurrency": args.concurrency,
         "deadline_seconds": args.deadline,

@@ -4,6 +4,7 @@ import asyncio
 import hashlib
 import hmac
 import json
+import logging
 import os
 import uuid
 from contextlib import asynccontextmanager
@@ -17,7 +18,7 @@ from .contracts import POLICIES, Contract, ModelCatalog, PolicyConfig, digest
 from .fixtures import load_task
 from .ledger import Denied, Ledger
 from .privacy import public_export
-from .provider import RateLimiter, TokenFactory, maximum_cost
+from .provider import DurableRateLimiter, TokenFactory, maximum_cost
 from .runner import run_policy
 
 DEMO_TASKS = [
@@ -34,21 +35,30 @@ class Submission(Contract):
     policy_id: str
 
 
-def create_app(db=None, model_catalog=None, provider_factory=None, policies=None):
+def create_app(db=None, model_catalog=None, provider_factory=None, policies=None, queue_sender=None):
     live = os.getenv("ACD_LIVE_ENABLED", "false").lower() == "true"
+    mode = os.getenv("ACD_EXECUTION_MODE", "local")
+    if mode not in {"local", "queue"}:
+        raise ValueError("Execution mode must be local or queue")
+    if os.getenv("VERCEL") and live and mode != "queue":
+        raise RuntimeError("Vercel live execution requires the private queue consumer")
     root = Path(os.getenv("ACD_SUITE", "fixtures"))
     state = {"worker": None, "db": db, "models": model_catalog, "policies": policies}
 
-    async def worker():
+    async def worker(once=False):
         database = state["db"]
         while True:
             try:
                 row = database.claim(str(uuid.uuid4()), hosted=True)
             except (Denied, SQLAlchemyError):
+                if once:
+                    raise
                 return
             if not row:
                 delay = database.active_lease_delay()
                 if delay is not None:
+                    if once:
+                        raise RuntimeError("Another run retains the execution lease")
                     await asyncio.sleep(delay + 0.1)
                     continue
                 return
@@ -92,9 +102,11 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
             finally:
                 if provider:
                     await provider.close()
+            if once:
+                return
 
     def wake():
-        if live and (state["worker"] is None or state["worker"].done()):
+        if live and mode == "local" and (state["worker"] is None or state["worker"].done()):
             state["worker"] = asyncio.create_task(worker())
 
     @asynccontextmanager
@@ -104,10 +116,14 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
                 raise RuntimeError("Live mode requires private quota salt and judge code")
             state["db"] = state["db"] or Ledger(os.environ["ACD_DATABASE_URL"])
             state["models"] = state["models"] or ModelCatalog.model_validate_json(
-                Path(os.getenv("ACD_MODELS", "private/models.json")).read_text()
+                os.getenv("ACD_MODELS_JSON")
+                or Path(os.getenv("ACD_MODELS", "private/models.json")).read_text()
             )
             if state["policies"] is None:
-                raw = json.loads(Path(os.getenv("ACD_POLICIES", "private/policies.json")).read_text())
+                raw = json.loads(
+                    os.getenv("ACD_POLICIES_JSON")
+                    or Path(os.getenv("ACD_POLICIES", "private/policies.json")).read_text()
+                )
                 state["policies"] = {
                     k: PolicyConfig.model_validate_json(json.dumps(v)) for k, v in raw.items()
                 }
@@ -116,7 +132,11 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
             allowed = {digest(m) for m in state["models"].models.values()}
             if any(digest(m) not in allowed for p in state["policies"].values() for m in p.models):
                 raise RuntimeError("Pinned policies differ from verified model catalog")
-            state["limiter"] = RateLimiter(state["models"].rpm, state["models"].tpm)
+            if mode == "queue" and any(p.limits.deadline_seconds > 180 for p in state["policies"].values()):
+                raise RuntimeError("Queue hosting requires the validated 180-second policy deadline")
+            state["limiter"] = DurableRateLimiter(state["db"], state["models"].rpm, state["models"].tpm)
+            if mode == "queue":
+                state["db"].recover_queue()
             state["db"].purge_traces()
             wake()
         yield
@@ -128,6 +148,7 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
                 pass
 
     app = FastAPI(title="Agent Cost Down", version="0.1.0", lifespan=lifespan, docs_url=None, redoc_url=None)
+    app.state.run_one = lambda: worker(once=True)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=os.getenv("ACD_ALLOWED_ORIGINS", "http://localhost:5173").split(","),
@@ -175,6 +196,11 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
             raise HTTPException(403, "Judge code is invalid")
         # Uvicorn trusts only the deployment proxy configured by FORWARDED_ALLOW_IPS.
         address = request.client.host if request.client else "unknown"
+        if os.getenv("VERCEL"):
+            # Vercel overwrites this header at its trusted ingress. Do not trust generic X-Forwarded-For.
+            address = request.headers.get("x-vercel-forwarded-for", "").strip()
+            if not address or "," in address:
+                raise HTTPException(503, "Trusted client address unavailable")
         client = hmac.new(
             os.environ["ACD_CLIENT_SALT"].encode(), address.encode(), hashlib.sha256
         ).hexdigest()
@@ -182,6 +208,8 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
         try:
             task, _ = load_task(root, body.task_id)
             state["db"].purge_traces()
+            if mode == "queue":
+                state["db"].recover_queue()
             row = state["db"].submit(
                 task_id=body.task_id,
                 policy_id=body.policy_id,
@@ -197,7 +225,29 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
             raise HTTPException(429, str(exc)) from exc
         except Exception as exc:
             raise HTTPException(503, "Spending ledger unavailable; no call was dispatched") from exc
-        wake()
+        if mode == "queue":
+            try:
+                if state["db"].begin_dispatch(row["id"]):
+                    if queue_sender:
+                        await queue_sender(row["id"])
+                    else:
+                        from vercel.queue import send
+
+                        await send(
+                            "acd-live-runs", {"run_id": row["id"]}, idempotency_key=row["id"], retention=900
+                        )
+                    state["db"].sent_dispatch(row["id"])
+                row = state["db"].get(row["id"])
+            except Exception as exc:
+                try:
+                    state["db"].fail_dispatch(row["id"])
+                except SQLAlchemyError:
+                    logging.getLogger(__name__).warning("Queue recovery pending: ledger unavailable")
+                raise HTTPException(
+                    503, "Queue dispatch uncertain; check this request using the same idempotency key"
+                ) from exc
+        else:
+            wake()
         return {"id": row["id"], "status": row["status"]}
 
     @app.get("/v1/runs/{run_id}")
@@ -205,6 +255,8 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
         if not live or not state["db"]:
             raise HTTPException(503, "Live execution disabled")
         try:
+            if mode == "queue":
+                state["db"].recover_queue()
             row = state["db"].get(str(run_id))
         except Exception as exc:
             raise HTTPException(503, "Job store unavailable") from exc

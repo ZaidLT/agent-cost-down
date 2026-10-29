@@ -2,9 +2,17 @@
 name = "agent-cost-down"
 version = "0.1.0"
 description = "Executable agent policies with independent outcome evaluation"
-requires-python = ">=3.13"
+requires-python = ">=3.13,<3.14"
 license = "MIT"
-dependencies = ["pydantic>=2.11,<3", "httpx>=0.28,<1", "fastapi>=0.115,<1", "uvicorn>=0.34,<1", "sqlalchemy>=2.0,<3", "psycopg[binary]>=3.2,<4"]
+dependencies = [
+    "pydantic>=2.11,<3",
+    "httpx>=0.28,<1",
+    "fastapi>=0.115,<1",
+    "uvicorn>=0.34,<1",
+    "sqlalchemy>=2.0,<3",
+    "psycopg[binary]>=3.2,<4",
+    "vercel-queue>=0.10.0",
+]
 
 [project.scripts]
 acd = "agent_cost_down.cli:main"
@@ -25,3 +33,7 @@ asyncio_mode = "auto"
 
 [tool.ruff]
 line-length = 110
+
+[[tool.vercel.subscribers]]
+entrypoint = "worker"
+topics = ["acd-live-runs"]

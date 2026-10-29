@@ -4,6 +4,7 @@
   "usable_usd_after_liabilities": null,
   "promotional_only": false,
   "billing_overage_acknowledged": false,
-  "topups_disabled": false,
-  "evidence_reference": null
+  "topups_disabled": null,
+  "evidence_reference": null,
+  "no_expiry_confirmed": false
 }

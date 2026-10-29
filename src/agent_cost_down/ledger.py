@@ -21,7 +21,7 @@ from sqlalchemy import (
     select,
     update,
 )
-from sqlalchemy.pool import StaticPool
+from sqlalchemy.pool import NullPool, StaticPool
 
 from .contracts import Contract
 
@@ -65,6 +65,21 @@ events = Table(
     Column("created", Float, nullable=False),
 )
 
+dispatches = Table(
+    "queue_dispatches",
+    metadata,
+    Column("run_id", String, primary_key=True),
+    Column("status", String, nullable=False),
+    Column("updated", Float, nullable=False),
+)
+rate_history = Table(
+    "provider_rate_history",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("created", Float, nullable=False),
+    Column("tokens", BigInteger, nullable=False),
+)
+
 
 class Denied(ValueError):
     pass
@@ -72,21 +87,27 @@ class Denied(ValueError):
 
 class Credits(Contract):
     confirmed_at: str
-    expires_at: str
+    expires_at: str | None
+    no_expiry_confirmed: bool = False
     usable_usd_after_liabilities: float = Field(gt=0)
     promotional_only: bool
     billing_overage_acknowledged: bool
-    topups_disabled: bool
+    # Legacy evidence only: disabling optional top-ups does not prevent automatic billing.
+    topups_disabled: bool | None = None
     evidence_reference: str = Field(min_length=1)
 
     @model_validator(mode="after")
     def valid(self):
-        if not (self.promotional_only and self.billing_overage_acknowledged and self.topups_disabled):
-            raise ValueError("Only confirmed promotional funding with top-ups disabled may be used")
+        if not (self.promotional_only and self.billing_overage_acknowledged):
+            raise ValueError("Confirmed promotional funding and billing-risk acknowledgement are required")
+        if self.expires_at is None and not self.no_expiry_confirmed:
+            raise ValueError("Missing expiry requires explicit no-expiry confirmation")
+        if self.expires_at is not None and self.no_expiry_confirmed:
+            raise ValueError("Specify an expiry date or confirmed no expiry, not both")
         for field in (self.confirmed_at, self.expires_at):
-            if datetime.fromisoformat(field).tzinfo is None:
+            if field is not None and datetime.fromisoformat(field).tzinfo is None:
                 raise ValueError("Credit timestamps require a timezone")
-        if datetime.fromisoformat(self.expires_at) <= datetime.now(UTC):
+        if self.expires_at is not None and datetime.fromisoformat(self.expires_at) <= datetime.now(UTC):
             raise ValueError("Credits have expired")
         return self
 
@@ -110,8 +131,93 @@ class Ledger:
                 opts["poolclass"] = StaticPool
             elif "///" in url:
                 Path(url.split("///", 1)[1]).parent.mkdir(parents=True, exist_ok=True)
+        else:
+            # Neon supplies the external pool; do not multiply persistent connections per function.
+            opts["poolclass"] = NullPool
         self.engine = create_engine(url, **opts)
+
+    def initialize_schema(self):
+        """Explicit deployment/CLI operation, never called from a request or worker startup."""
         metadata.create_all(self.engine)
+
+    def rate_delay(self, tokens, rpm, tpm):
+        if rpm < 1 or tpm < 1 or tokens < 0:
+            raise ValueError("Rate limits must be positive and tokens nonnegative")
+        if tokens > tpm:
+            raise Denied("One bounded request exceeds the provider token allowance")
+        with self.transaction() as con:
+            self._config(con)
+            stamp = time.time()
+            con.execute(rate_history.delete().where(rate_history.c.created <= stamp - 60))
+            recent = list(con.execute(select(rate_history).order_by(rate_history.c.created)).mappings())
+            if len(recent) < rpm and sum(r["tokens"] for r in recent) + tokens <= tpm:
+                con.execute(rate_history.insert().values(id=str(uuid.uuid4()), created=stamp, tokens=tokens))
+                return 0.0
+            return max(0.01, recent[0]["created"] + 60 - stamp)
+
+    def begin_dispatch(self, run_id):
+        with self.transaction() as con:
+            row = con.execute(select(jobs).where(jobs.c.id == run_id)).mappings().one()
+            previous = con.execute(select(dispatches).where(dispatches.c.run_id == run_id)).first()
+            if row["status"] != "queued" or previous:
+                return False
+            con.execute(dispatches.insert().values(run_id=run_id, status="sending", updated=time.time()))
+            return True
+
+    def sent_dispatch(self, run_id):
+        with self.transaction() as con:
+            con.execute(
+                update(dispatches)
+                .where(dispatches.c.run_id == run_id)
+                .values(status="sent", updated=time.time())
+            )
+
+    def fail_dispatch(self, run_id):
+        """Cancel only unclaimed work, including a send whose acknowledgement was lost."""
+        with self.transaction() as con:
+            row = con.execute(select(jobs).where(jobs.c.id == run_id)).mappings().one()
+            if row["status"] == "queued":
+                con.execute(
+                    update(jobs)
+                    .where(jobs.c.id == run_id)
+                    .values(
+                        status="failed", reserved=0, error="Queue dispatch failed. No model call was started."
+                    )
+                )
+                con.execute(
+                    update(dispatches)
+                    .where(dispatches.c.run_id == run_id)
+                    .values(status="failed", updated=time.time())
+                )
+
+    def recover_queue(self):
+        """Bound abandoned dispatches and leases without replaying uncertain model calls."""
+        with self.transaction() as con:
+            stamp = time.time()
+            rows = list(con.execute(select(jobs).where(jobs.c.pool.in_(["public", "judge"]))).mappings())
+            for row in rows:
+                if row["status"] == "running" and row["lease_until"] <= stamp:
+                    con.execute(
+                        update(jobs)
+                        .where(jobs.c.id == row["id"])
+                        .values(
+                            status="interrupted",
+                            lease_until=None,
+                            error="Worker interrupted; uncertain requests will not be replayed",
+                        )
+                    )
+                if row["status"] != "queued":
+                    continue
+                dispatch = (
+                    con.execute(select(dispatches).where(dispatches.c.run_id == row["id"])).mappings().first()
+                )
+                timeout = 120 if not dispatch or dispatch["status"] == "sending" else 900
+                if row["created"] < stamp - timeout:
+                    con.execute(
+                        update(jobs)
+                        .where(jobs.c.id == row["id"])
+                        .values(status="failed", reserved=0, error="Queue delivery expired before execution.")
+                    )
 
     @contextmanager
     def transaction(self):
@@ -136,7 +242,9 @@ class Ledger:
             for k, share in {"development": 0.10, "evaluation": 0.50, "judge": 0.20, "public": 0.10}.items()
         }
         # A judge reserve must remain funded throughout the promised access period.
-        if datetime.fromisoformat(credits.expires_at) < datetime(2026, 12, 16, tzinfo=UTC):
+        if credits.expires_at is not None and datetime.fromisoformat(credits.expires_at) < datetime(
+            2026, 12, 16, tzinfo=UTC
+        ):
             allocations["judge"] = 0
         with self.transaction() as con:
             if con.execute(select(settings)).first():
@@ -144,7 +252,9 @@ class Ledger:
                     "Ledger already configured; reconcile existing liabilities before changing funding"
                 )
             con.execute(
-                settings.insert().values(id=1, allocations=allocations, expires=credits.expires_at, enabled=1)
+                settings.insert().values(
+                    id=1, allocations=allocations, expires=credits.expires_at or "no_expiry", enabled=1
+                )
             )
 
     def ready(self):
@@ -168,7 +278,9 @@ class Ledger:
         config = con.execute(select(settings)).mappings().first()
         if not config or not config["enabled"]:
             raise Denied("Live spending is disabled")
-        if datetime.fromisoformat(config["expires"]) <= datetime.now(UTC):
+        if config["expires"] != "no_expiry" and datetime.fromisoformat(config["expires"]) <= datetime.now(
+            UTC
+        ):
             raise Denied("Confirmed credits expired")
         return config
 
