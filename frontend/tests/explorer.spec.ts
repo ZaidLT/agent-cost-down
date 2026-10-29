@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test'
 
+// Keep scripted behavior tests independent of the report selected for release.
+test.beforeEach(async ({page}) => {
+  await page.route('**/reports/index.json', route => route.fulfill({json: {active: 'illustration.json', status: 'test_fixture'}}))
+})
+
 test('comparison, independent outcome, policy export, disconnected API', async ({page}) => {
   await page.goto('/')
   await expect(page.getByText('Scripted illustration. No real model results or cost savings have been measured.')).toBeVisible()

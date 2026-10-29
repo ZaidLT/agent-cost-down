@@ -4,7 +4,9 @@ Compare an agent's execution policies, inspect independent outcomes, and apply t
 
 A Python tool agent runs a fictional store through five fixed policies built on NVIDIA Nemotron 3 models: Nano, Super, Ultra, Nano with one retry, and Nano followed by Ultra. Runtime checks decide whether another attempt is allowed. An independent evaluator scores the result afterward. Every attempt contributes to cost and latency.
 
-**Current status:** the engine, generated fixtures, budget controls, API, report explorer, and deterministic tests are implemented. The bundled explorer uses clearly labeled scripted test fixtures. No Token Factory quality or savings result has been measured. Protected Vercel and Neon setup is complete. Fresh funding confirmation, human fixture review, real evaluation, public release, video, and competition submission remain gates.
+**Current status:** the complete v3 study contains 100 development and 300 held-out executions. Its preselected Nano-only policy did not validate. Diagnostic replay traced 33 of 52 held-out failures to a mismatch between advertised tool fields and runtime checks. The original report is bundled unchanged. A narrowly amended v4 controlled rerun is in progress, with the same tasks and selection rule. No v4 result is claimed yet. The repository and deployments remain protected pending publication approval.
+
+See [the v4 amendment](docs/v4-amendment.md) and [offline replay evidence](docs/v4-replay-evidence.json). V4 reuses an already-inspected evaluation suite and is not fresh independent validation.
 
 ## Built with NVIDIA Nemotron on Nebius Token Factory
 
@@ -42,7 +44,7 @@ npm ci
 npm run dev
 ```
 
-Open http://127.0.0.1:5173. Compare five policies, inspect the Nano-to-Ultra test trace, and export its configuration from Apply. Scripted identifiers cannot call the provider and carry no savings claim.
+Open http://127.0.0.1:5173 to inspect the saved measured report. The offline smoke above separately creates a scripted illustration with no model calls or savings claim. Historical v3 policy exports require the original v3 runner commit d1f1b12443334d285f0266141deebf380dd154f3; the current runner intentionally requires validator version 2.
 
 The repository remains private during preparation; cloning requires authorized GitHub access. Publication requires the owner’s explicit approval.
 

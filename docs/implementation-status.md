@@ -34,3 +34,10 @@ During that development batch, API-only changes added protected Render preparati
 7. Present the release for explicit publication approval, then verify signed-out links, submit and tag the exact release.
 
 Official deadline: October 30, 2026 at 20:00 Istanbul; submission target: 18:00. Judge access must remain available through December 15. A passing test suite or scripted deployment is not a completed submission.
+
+
+## V4 controlled repair, October 30
+
+The complete v3 held-out report is preserved with status not_validated. The narrow v4 amendment and implementation were committed as aadb926 before inference. Offline replay accepted all 60 affected attempts and recovered 33 final held-out failures and nine development failures. Local verification passed 102 backend tests and ten browser tests; CI passed PostgreSQL, schemas and the container build. V4 is supervised with a hard 08:00 Istanbul cutoff. No v4 conclusion is claimed until its report exists.
+
+Render Free is deployed with private bearer access and inference disabled. The proxy-verification flag remains disabled following automatic approval review; public quota admission must remain disabled until a trusted ingress proof is accepted. The existing production Neon database is verified and unfunded.

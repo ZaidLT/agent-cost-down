@@ -48,3 +48,10 @@ Show HN title: Show HN: Agent Cost Down, executable model policies with independ
 Show HN body: [Insert short real result.] The project compares five fixed policies on a small synthetic order-agent workload, records failed and escalated attempts, and exports the same configuration the runner consumes. It is MIT licensed. The independent evaluator runs after execution, so expected answers cannot drive escalation. Limitations and reproduction instructions are included. Feedback on the quickstart and failure analysis would be particularly useful.
 
 Publish these drafts only after replacing every placeholder with verified evidence and checking the community's current rules.
+
+
+## V4 controlled rerun disclosure
+
+Controlled rerun on the same evaluation suite. These tasks and their v3 results were inspected before the v4 amendment. This is not fresh independent validation.
+
+The original report remains immutable. The controlled rerun measures redundant-field acceptance and precise runtime feedback together. Do not attribute gains to either intervention separately. Missing tool calls must not be described as malformed JSON. Final v4 numbers and qualification remain pending.
