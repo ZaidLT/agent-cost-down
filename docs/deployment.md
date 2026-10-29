@@ -35,3 +35,10 @@ Do not upgrade any plan. If the pilot cannot complete at 600 seconds, report the
 Run backend and isolated PostgreSQL tests, frontend checks, queue packaging checks, bundle scans, clean-install quickstart and second adapter. Verify preview outage behavior, duplicate deliveries, process termination, quota limits, Neon failure and separate allocations. Only then enable bounded live testing. Check actual free-tier allowances in the account before deployment and weekly during judging. Record verified URLs privately.
 
 References: [Vercel Queues](https://vercel.com/docs/queues/quickstart), [Queue pricing](https://vercel.com/docs/queues/pricing), [Python subscriber configuration](https://vercel.com/docs/queues/python-sdk), [Neon Free](https://neon.com/pricing), [Render Free](https://render.com/docs/free).
+
+
+## Production funding handoff after report verification
+
+Do not initialize a second $25 ledger in production. Once report and deployment gates pass, run `uv run python scripts/funding_handoff.py --destination-fingerprint <verified-production-fingerprint>`. This atomically retires the unused $5 judge and $2.50 public allowances in the local ledger and records a recoverable transfer receipt. It refuses pools with any existing jobs. The receipt is stored privately and contains no provider or database secret.
+
+Upload that receipt as the production-only sensitive variable `ACD_FUNDING_RECEIPT_JSON`. On the next explicit deployment build, schema initialization imports only those two allocations, with development and evaluation set to zero. The destination fingerprint and production environment must match. A repeated deployment recognizes the receipt without resetting charges, and an already-funded destination refuses unrelated receipts. Preview must never receive this variable. Funding does not enable inference: keep `ACD_LIVE_ENABLED=false` until the remaining live-test gates pass. Record the source retirement and destination acceptance in the private operations register.

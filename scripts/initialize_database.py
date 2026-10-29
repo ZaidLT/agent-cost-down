@@ -1,4 +1,4 @@
-"""Explicit deployment schema setup. Never enables funding or prints connection secrets."""
+"""Explicit deployment schema setup. Optional explicit production funding receipt; never starts inference or prints secrets."""
 
 import hashlib
 import json
@@ -27,6 +27,10 @@ def main():
         with database.engine.connect() as connection:
             assert connection.execute(text("select 1")).scalar() == 1
         database.initialize_schema()
+        receipt_json = os.getenv("ACD_FUNDING_RECEIPT_JSON")
+        if receipt_json:
+            from funding_handoff import receive
+            receive(database, json.loads(receipt_json), identity, os.getenv("VERCEL_ENV"))
         print(
             json.dumps(
                 {
