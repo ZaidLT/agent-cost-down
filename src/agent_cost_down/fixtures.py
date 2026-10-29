@@ -238,3 +238,10 @@ def load_task(root: Path, task_id: str):
 
 def suite_tasks(root: Path, split: str):
     return [t["id"] for t in json.loads((root / "manifest.json").read_text())["tasks"] if t["split"] == split]
+
+
+def require_current_suite(root: Path):
+    """Reject legacy oracle contracts before any paid inference or reservation."""
+    manifest = json.loads((root / "manifest.json").read_text())
+    if manifest.get("generator_version") != "3":
+        raise ValueError("Live execution requires generator version 3; set ACD_SUITE=fixtures-v3")

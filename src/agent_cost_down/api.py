@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import SQLAlchemyError
 
 from .contracts import POLICIES, Contract, ModelCatalog, PolicyConfig, digest
-from .fixtures import load_task
+from .fixtures import load_task, require_current_suite
 from .ledger import Denied, Ledger
 from .privacy import public_export
 from .provider import DurableRateLimiter, TokenFactory, maximum_cost
@@ -53,6 +53,8 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
     if live and os.getenv("VERCEL_ENV") == "preview":
         raise RuntimeError("Branched previews cannot spend inference credit; use the protected production ledger")
     root = Path(os.getenv("ACD_SUITE", "fixtures-v3"))
+    if live:
+        require_current_suite(root)
     state = {"worker": None, "db": db, "models": model_catalog, "policies": policies}
 
     async def worker(once=False):

@@ -13,7 +13,7 @@ services:
       - key: ACD_POLICIES
         value: /etc/secrets/policies.json
       - key: ACD_SUITE
-        value: /app/fixtures
+        value: /app/fixtures-v3
       - key: NEBIUS_API_KEY
         sync: false
       - key: ACD_DATABASE_URL

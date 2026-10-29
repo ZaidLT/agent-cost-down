@@ -21,7 +21,7 @@ from .contracts import (
     digest,
     policy,
 )
-from .fixtures import generate, load_task, suite_tasks
+from .fixtures import generate, load_task, require_current_suite, suite_tasks
 from .ledger import Credits, Denied, Ledger
 from .privacy import public_export
 from .provider import RateLimiter, TokenFactory, maximum_cost
@@ -61,6 +61,7 @@ async def execute(
 ):
     from .evaluation.outcomes import evaluate_from_file
 
+    require_current_suite(Path(os.getenv("ACD_SUITE", "fixtures-v3")))
     allowed = {digest(m) for m in models.models.values()}
     if any(digest(m) not in allowed for m in config.models):
         raise ValueError("Policy contains models or prices not present in the verified account catalog")
@@ -192,6 +193,8 @@ async def main_async(args):
     elif args.command == "benchmark":
         from .protocol import code_hash, freeze, verify_freeze
 
+        if args.execute:
+            require_current_suite(root)
         models = catalog(args)
         if args.freeze_from:
             frozen = freeze(

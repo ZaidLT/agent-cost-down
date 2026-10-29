@@ -52,3 +52,28 @@ def test_return_window_is_explicit(suite):
     task, _ = load_task(suite, 'returns-heldout-1')
     assert task.rules['return_window_anchor'] == 'order.created_at'
     assert task.rules['return_window_inclusive'] is True
+
+
+def test_legacy_suite_rejected_before_live_api(monkeypatch, tmp_path):
+    from agent_cost_down.api import create_app
+    root = tmp_path / 'legacy'
+    root.mkdir()
+    (root / 'manifest.json').write_text('{"generator_version":"2"}')
+    monkeypatch.setenv('ACD_SUITE', str(root))
+    monkeypatch.setenv('ACD_LIVE_ENABLED', 'true')
+    monkeypatch.setenv('ACD_EXECUTION_MODE', 'local')
+    with pytest.raises(ValueError, match='generator version 3'):
+        create_app()
+
+
+@pytest.mark.asyncio
+async def test_legacy_suite_rejected_before_cli_reservation(monkeypatch, tmp_path, first):
+    from agent_cost_down.cli import execute
+    root = tmp_path / 'legacy'
+    root.mkdir()
+    (root / 'manifest.json').write_text('{"generator_version":"2"}')
+    monkeypatch.setenv('ACD_SUITE', str(root))
+    monkeypatch.delenv('NEBIUS_API_KEY', raising=False)
+    with pytest.raises(ValueError, match='generator version 3'):
+        await execute(*first, policy(catalog(), 'small_only'), catalog(), tmp_path / 'run.json',
+                      pool='development', key='no-reservation')

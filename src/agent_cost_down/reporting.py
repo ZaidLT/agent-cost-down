@@ -146,7 +146,7 @@ def build_report(runs, manifest, split, source, *, selected=None, assigned_per_p
             **(provenance or {}),
             "paired": paired,
             "cheapest_acceptable_single": cheapest["id"] if cheapest else None,
-            "limitations": "Small synthetic workload. Repetitions are not independent task types. Charges are estimates.",
+            "limitations": "Small synthetic workload: 20 held-out tasks cover 7 distinct scenarios. Repeated templates, numeric variants, and repetitions are not independent real-world task types. No task requests a return exceeding the remaining quantity after a prior return. Charges are estimates.",
         },
         policies=summaries,
         runs=runs,
