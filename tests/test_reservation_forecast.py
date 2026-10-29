@@ -27,3 +27,12 @@ def test_exact_reservation_is_admissible(tmp_path, capsys, monkeypatch):
     output = capsys.readouterr().out
     assert 'BLOCKED' not in output
     assert 'OK' in output
+
+
+def test_nested_model_fingerprints_match_explicit_json():
+    from agent_cost_down.contracts import digest, policy
+    config = policy(make_catalog(), 'small_ultra')
+    assert digest({'config': config, 'list': [config]}) == digest(
+        {'config': config.model_dump(mode='json'), 'list': [config.model_dump(mode='json')]})
+    with pytest.raises(TypeError):
+        digest({'invalid': object()})

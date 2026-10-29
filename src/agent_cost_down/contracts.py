@@ -10,9 +10,15 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 def canonical(value: Any) -> str:
-    if isinstance(value, BaseModel):
-        value = value.model_dump(mode="json")
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
+    def encode_model(item):
+        if isinstance(item, BaseModel):
+            return item.model_dump(mode="json")
+        raise TypeError(f"Unsupported canonical value: {type(item).__name__}")
+
+    return json.dumps(
+        value, default=encode_model, sort_keys=True, separators=(",", ":"),
+        ensure_ascii=False, allow_nan=False,
+    )
 
 
 def digest(value: Any) -> str:
