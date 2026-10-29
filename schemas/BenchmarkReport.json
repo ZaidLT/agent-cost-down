@@ -87,7 +87,10 @@
       "additionalProperties": false,
       "properties": {
         "schema_version": {
-          "const": 1,
+          "enum": [
+            1,
+            2
+          ],
           "title": "Schema Version",
           "type": "integer"
         },
@@ -227,6 +230,22 @@
             "MISSING_REQUIRED_FIELD",
             "UNKNOWN_TOOL",
             "BUSINESS_RULE_VIOLATION",
+            "NO_TOOL_CALL",
+            "CONFLICTING_SKU",
+            "CONFLICTING_QUANTITY",
+            "INVALID_RETURN_QUANTITY",
+            "ORDER_UNAVAILABLE",
+            "SKU_UNAVAILABLE",
+            "QUERY_LIMIT",
+            "QUERY_REJECTED",
+            "ANSWER_LIMIT",
+            "REFUSAL_NOT_SUPPORTED",
+            "INSUFFICIENT_STOCK",
+            "DUPLICATE_LINE_CHANGE",
+            "LINE_UNAVAILABLE",
+            "RETURN_NOT_ALLOWED",
+            "ORDER_NOT_AMENDABLE",
+            "INSUFFICIENT_STOCK_OR_UNKNOWN_SKU",
             "STEP_LIMIT"
           ],
           "title": "Code",
@@ -381,8 +400,11 @@
           "$ref": "#/$defs/Limits"
         },
         "validator_version": {
-          "const": "1",
-          "default": "1",
+          "default": "2",
+          "enum": [
+            "1",
+            "2"
+          ],
           "title": "Validator Version",
           "type": "string"
         },

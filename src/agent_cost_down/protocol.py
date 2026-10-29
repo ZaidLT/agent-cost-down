@@ -34,7 +34,17 @@ def freeze(root, catalog, limits, development_report, target):
         raise ValueError("Development settings do not match the proposed freeze")
     if len(report["runs"]) != 100 or any(not r["measurement_complete"] for r in report["runs"]):
         raise ValueError("Forecast requires all 100 development executions with complete cost measurements")
+    if not report["recommendation"]["selected"]:
+        raise ValueError("No development candidate qualifies")
+    from .experiment import revision
+
+    if report.get("provenance", {}).get("code_hash") != code_hash():
+        raise ValueError("Execution code changed since development assignment")
     frozen = {
+        "experiment": {k: report["provenance"][k] for k in (
+            "protocol_version", "validator_version", "amendment_commit", "interventions",
+            "original_report", "reused_suite", "evaluation_disclosure")},
+        "frozen_commit": revision(),
         "schema_version": 1,
         "created_at": now(),
         "code_hash": code_hash(),

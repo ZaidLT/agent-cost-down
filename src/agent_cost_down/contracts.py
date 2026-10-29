@@ -50,6 +50,11 @@ class Observation(Contract):
         "MISSING_REQUIRED_FIELD",
         "UNKNOWN_TOOL",
         "BUSINESS_RULE_VIOLATION",
+        "NO_TOOL_CALL", "CONFLICTING_SKU", "CONFLICTING_QUANTITY",
+        "INVALID_RETURN_QUANTITY", "ORDER_UNAVAILABLE", "SKU_UNAVAILABLE",
+        "QUERY_LIMIT", "QUERY_REJECTED", "ANSWER_LIMIT", "REFUSAL_NOT_SUPPORTED",
+        "INSUFFICIENT_STOCK", "DUPLICATE_LINE_CHANGE", "LINE_UNAVAILABLE",
+        "RETURN_NOT_ALLOWED", "ORDER_NOT_AMENDABLE", "INSUFFICIENT_STOCK_OR_UNKNOWN_SKU",
         "STEP_LIMIT",
     ]
     tool: (
@@ -74,7 +79,7 @@ class Observation(Contract):
 
 
 class FailureContext(Contract):
-    schema_version: Literal[1]
+    schema_version: Literal[1, 2]
     source_model: str = Field(max_length=200)
     attempt_number: Literal[1]
     restart_from_original_state: Literal[True]
@@ -167,7 +172,7 @@ class PolicyConfig(Contract):
     adapter: Literal["orders", "inventory"] = "orders"
     models: list[ModelSpec] = Field(min_length=1, max_length=2)
     limits: Limits = Field(default_factory=Limits)
-    validator_version: Literal["1"] = "1"
+    validator_version: Literal["1", "2"] = "2"
     parser_version: Literal["1"] = "1"
     supporting_report: str | None = None
     price_source: str

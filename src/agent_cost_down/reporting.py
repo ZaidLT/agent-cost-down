@@ -46,6 +46,11 @@ def summarize(runs, assigned):
         "rejection_rate": sum(a.verdict == "RETRY" for a in attempts) / len(attempts) if attempts else 0,
         "normalization_rate": sum(a.normalized_calls for a in attempts) / parsed if parsed else 0,
         "incomplete_measurements": assigned - sum(r.measurement_complete for r in runs),
+        "escalated_runs": sum(len(r.attempts) == 2 for r in runs),
+        "recovered_runs": sum(len(r.attempts) == 2 and bool(r.outcome and r.outcome.success) for r in runs),
+        "clarification_failures": sum(r.verdict == "CLARIFY" and bool(r.outcome and not r.outcome.success) for r in runs),
+        "provider_failures": sum(any(e.get("kind") == "provider_failure" for a in r.attempts for e in a.events) for r in runs),
+        "deadline_interruptions": sum(any(e.get("kind") == "interrupted" for a in r.attempts for e in a.events) for r in runs),
     }
 
 
@@ -66,6 +71,21 @@ def build_report(runs, manifest, split, source, *, selected=None, assigned_per_p
         if not set(keys) <= schedule:
             raise ValueError("Report includes an execution outside the assigned schedule")
 
+    versions = {r.policy.validator_version for r in runs}
+    if len(versions) > 1:
+        raise ValueError("Mixed validator/protocol versions")
+    for pid in POLICIES:
+        if len({r.policy_hash for r in runs if r.policy.id == pid}) > 1:
+            raise ValueError("Incompatible configurations for one policy")
+    if provenance and "configs" in provenance and any(provenance["configs"].get(r.policy.id) != r.policy_hash for r in runs):
+        raise ValueError("Configuration differs from assigned hash")
+    if source == "benchmark" and versions == {"2"}:
+        if not provenance or provenance.get("protocol_version") != "4" or provenance.get("validator_version") != "2":
+            raise ValueError("Validator 2 benchmark requires protocol 4 provenance")
+        if not provenance.get("reused_suite") or not provenance.get("evaluation_disclosure"):
+            raise ValueError("Controlled rerun disclosure is required")
+    elif provenance and provenance.get("protocol_version") == "4" and versions == {"1"}:
+        raise ValueError("Legacy records cannot be labeled protocol 4")
     summaries = []
     for pid in POLICIES:
         group = [r for r in runs if r.policy.id == pid]
@@ -144,6 +164,12 @@ def build_report(runs, manifest, split, source, *, selected=None, assigned_per_p
         manifest_hash=digest(manifest),
         provenance={
             **(provenance or {}),
+            "completion_status": "complete" if len(runs) == sum(s["assigned"] for s in summaries) else "incomplete",
+            "assignment_accounting": {
+                "assigned": sum(s["assigned"] for s in summaries),
+                "completed_records": len(runs),
+                "missing_records": sum(s["assigned"] for s in summaries) - len(runs),
+            },
             "paired": paired,
             "cheapest_acceptable_single": cheapest["id"] if cheapest else None,
             "limitations": "Small synthetic workload: 20 held-out tasks cover 7 distinct scenarios. Repeated templates, numeric variants, and repetitions are not independent real-world task types. No task requests a return exceeding the remaining quantity after a prior return. Charges are estimates.",

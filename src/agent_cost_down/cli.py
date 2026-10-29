@@ -227,7 +227,10 @@ async def main_async(args):
             )
         if frozen and (args.concurrency != frozen["concurrency"] or pilot_hash != frozen["pilot_hash"]):
             raise ValueError("Concurrency or pilot evidence differs from the development freeze")
+        from .experiment import provenance
+
         assignment = {
+            **(frozen["experiment"] if frozen else provenance()),
             "concurrency": args.concurrency,
             "pilot_hash": pilot_hash,
             "split": args.split,
@@ -236,6 +239,7 @@ async def main_async(args):
             "manifest_hash": digest(manifest),
             "configs": {p: digest(c) for p, c in configs.items()},
             "freeze_hash": digest(frozen),
+            "frozen_commit": frozen.get("frozen_commit") if frozen else None,
             "selected": frozen["selected"] if frozen else None,
         }
         assignment_path = output / "assignment.json"
@@ -339,6 +343,9 @@ async def main_async(args):
 
         assignment = json.loads((Path(args.input) / "assignment.json").read_text())
         runs = read_runs(Path(args.input) / "runs")
+        status_path = Path(args.input) / "execution-status.json"
+        if status_path.exists():
+            assignment["execution_status"] = json.loads(status_path.read_text())
         manifest = json.loads((root / "manifest.json").read_text())
         if assignment["manifest_hash"] != digest(manifest):
             raise ValueError("Report manifest mismatch")

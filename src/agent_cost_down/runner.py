@@ -27,7 +27,7 @@ Money is integer cents. The SQL database contains only authorized order data.
 
 def failure(model, reason, code, tool=None, field=None, expected=None, observed=None):
     return FailureContext(
-        schema_version=1,
+        schema_version=2,
         source_model=model,
         attempt_number=1,
         restart_from_original_state=True,
@@ -113,7 +113,7 @@ async def attempt(
                 or not calls
                 or any(not isinstance(c, dict) or not isinstance(c.get("function"), dict) for c in calls)
             ):
-                fc = failure(model.id, "parse_failed", "INVALID_JSON")
+                fc = failure(model.id, "parse_failed", "NO_TOOL_CALL")
                 events.append({"kind": "failure", "code": "NO_TOOL_CALL"})
                 break
             messages.append({"role": "assistant", "content": message.get("content"), "tool_calls": calls})
@@ -159,8 +159,9 @@ async def attempt(
                             "content": canonical(output),
                         }
                     )
-                except ToolFailure:
-                    fc = failure(model.id, "runtime_validation_failed", "BUSINESS_RULE_VIOLATION", name)
+                except ToolFailure as exc:
+                    pointer = exc.field if validated_pointer(name, exc.field, arguments, world.types()) else None
+                    fc = failure(model.id, "runtime_validation_failed", exc.code, name, pointer)
                     break
             if fc or verdict != "RETRY":
                 break
@@ -191,6 +192,8 @@ async def attempt(
 
 
 async def run_policy(task, snapshot, config, provider, *, source="live", repetition=0, run_id=None):
+    if config.validator_version != "2":
+        raise ValueError("This runner requires validator version 2; legacy reports remain readable")
     if config.adapter != task.adapter:
         raise ValueError("Policy adapter does not match task adapter")
     started = time.monotonic()

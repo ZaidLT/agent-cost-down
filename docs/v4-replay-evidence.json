@@ -1,0 +1,23 @@
+{
+  "source": "offline_counterfactual_replay",
+  "model_calls": 0,
+  "results": {
+    "development": {
+      "accepted_and_correct_attempts": 12,
+      "corrected_final_failures": 9,
+      "small_only": 1,
+      "small_ultra": 2,
+      "super_only": 3,
+      "ultra_only": 3
+    },
+    "heldout": {
+      "accepted_and_correct_attempts": 48,
+      "corrected_final_failures": 33,
+      "small_only": 10,
+      "small_retry": 3,
+      "super_only": 4,
+      "ultra_only": 12,
+      "small_ultra": 4
+    }
+  }
+}

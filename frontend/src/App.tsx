@@ -216,10 +216,17 @@ export default function App() {
   const route = useSyncExternalStore(subscribe, snapshot)
   const [report, setReport] = useState<Report | null>(null)
   const [error, setError] = useState(false)
+  const [archives, setArchives] = useState<{file: string; label: string}[]>([])
   useEffect(() => {
     const controller = new AbortController()
     fetch('/reports/index.json', {signal: controller.signal}).then(r => {if (!r.ok) throw new Error(); return r.json()})
-      .then(index => fetch('/reports/' + index.active, {signal: controller.signal}))
+      .then(index => {
+        const entries = (index.reports || []).filter((entry: {file?: string; label?: string}) => typeof entry.file === 'string' && /^[a-zA-Z0-9_-]+\.json$/.test(entry.file) && typeof entry.label === 'string')
+        setArchives(entries)
+        const requested = new URLSearchParams(window.location.search).get('report')
+        const selected = entries.find((entry: {file: string}) => entry.file === requested)?.file || index.active
+        return fetch('/reports/' + selected, {signal: controller.signal})
+      })
       .then(r => {if (!r.ok) throw new Error(); return r.json()})
       .then(value => {if (value.schema_version !== 1 || !Array.isArray(value.runs)) throw new Error(); setReport(value)})
       .catch(e => {if (e.name !== 'AbortError') setError(true)})
@@ -231,7 +238,9 @@ export default function App() {
       <nav aria-label="Main navigation">{['compare', 'inspect', 'apply'].map(p => <a key={p} href={'#' + p} aria-current={page === p ? 'page' : undefined}>{p[0].toUpperCase() + p.slice(1)}</a>)}</nav>
       <a className={s.repo} href="https://github.com/ZaidLT/agent-cost-down">Source code</a></header>
     {report?.source === 'test_fixture' && <div className={s.banner}>Scripted illustration. No real model results or cost savings have been measured.</div>}
+    {report?.provenance.evaluation_disclosure && <div className={s.banner}>{report.provenance.evaluation_disclosure}</div>}
     <main id="main-content" className={s.main}>
+      {archives.length > 1 && <nav aria-label="Experiment versions">{archives.map(entry => <a key={entry.file} href={'?report=' + encodeURIComponent(entry.file) + '#compare'}>{entry.label} </a>)}</nav>}
       {error ? <section className={s.panel}><h1>The report could not be loaded.</h1><p>Refresh to retry. No live inference was started.</p><button onClick={() => window.location.reload()}>Reload report</button></section> :
        !report ? <p role="status">Loading the saved report...</p> :
        page === 'inspect' ? <Inspect report={report} id={id} /> : page === 'apply' ? <Apply key={id} report={report} id={id} /> : <Compare report={report} />}

@@ -1,0 +1,15 @@
+{
+  "baseline_commit": "d1f1b12443334d285f0266141deebf380dd154f3",
+  "checks": {
+    "Change": "unchanged",
+    "Draft": "unchanged",
+    "DESCRIPTIONS": "unchanged",
+    "TOOL_TYPES": "unchanged",
+    "PROMPT": "unchanged",
+    "src/agent_cost_down/evaluation/outcomes.py": "1f4992ce6a78f285bcb156189e3d80cc4313b493101e2fe65be39ede5ee56ce9",
+    "src/agent_cost_down/parsing.py": "681c3d49f9293ef41bb51fdbf693d9663f57ed159933d4bb532457387ee026e7",
+    "src/agent_cost_down/provider.py": "e85f1ca92847ca37aa370f08d48d8f44f2175aa43158b2d1ef03df1fb1b7987e",
+    "fixtures-v3/manifest.json": "fca0d669d033e2073c2785362586929d2dbb680c1315f245ec5a632112897a2c",
+    "fixtures-v3/review.json": "83741b755832a686df8af2407a8b2e5e9bd0ab1ad975c2d75ea811992a410916"
+  }
+}

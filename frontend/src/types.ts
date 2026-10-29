@@ -25,6 +25,6 @@ export type Summary = {
 }
 export type Report = {
   schema_version: number; id: string; created_at: string; source: string; split: string;
-  manifest_hash: string; provenance: {limitations?: string}; policies: Summary[]; runs: Run[];
+  manifest_hash: string; provenance: {limitations?: string; evaluation_disclosure?: string; protocol_version?: string}; policies: Summary[]; runs: Run[];
   recommendation: {selected: string | null; status: string; reason: string};
 }

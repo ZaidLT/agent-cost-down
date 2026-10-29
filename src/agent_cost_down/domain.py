@@ -92,7 +92,10 @@ TERMINAL = {"submit_draft", "submit_answer", "clarify", "refuse", "reserve_inven
 
 
 class ToolFailure(ValueError):
-    pass
+    def __init__(self, message, code="BUSINESS_RULE_VIOLATION", field=None):
+        super().__init__(message)
+        self.code = code
+        self.field = field
 
 
 class World:
@@ -150,7 +153,7 @@ class World:
             "SELECT * FROM orders WHERE id=? AND customer_id=?", (order_id, self.task.customer_id)
         ).fetchone()
         if row is None:
-            raise ToolFailure("Order is unavailable in the authorized scope")
+            raise ToolFailure("Order is unavailable in the authorized scope", "ORDER_UNAVAILABLE")
         return dict(row)
 
     def read(self, name, args):
@@ -181,13 +184,13 @@ class World:
         if name == "check_stock":
             row = self.db.execute("SELECT * FROM stock WHERE sku=?", (args.sku,)).fetchone()
             if row is None:
-                raise ToolFailure("Unknown SKU")
+                raise ToolFailure("Unknown SKU", "SKU_UNAVAILABLE")
             return dict(row)
         if name == "get_rules":
             return {**self.task.rules, "as_of": self.task.as_of}
         if name == "read_only_sql":
             return self.read_sql(args.query)
-        raise ToolFailure("Unknown read tool")
+        raise ToolFailure("Unknown read tool", "UNKNOWN_TOOL")
 
     def read_sql(self, query):
         # Use a separate authorized projection, so arbitrary joins cannot reveal other customers.
@@ -231,10 +234,10 @@ class World:
         try:
             result = [dict(r) for r in scoped.execute(query).fetchmany(101)]
             if len(result) > 100 or len(json.dumps(result)) > 16000:
-                raise ToolFailure("Query output exceeds limits")
+                raise ToolFailure("Query output exceeds limits", "QUERY_LIMIT")
             return result
         except sqlite3.Error as exc:
-            raise ToolFailure("Read-only query rejected or exceeded its budget") from exc
+            raise ToolFailure("Read-only query rejected or exceeded its budget", "QUERY_REJECTED") from exc
         finally:
             scoped.close()
 
@@ -243,7 +246,7 @@ class World:
             return "CLARIFY", "clarification", args.model_dump()
         if name == "submit_answer":
             if len(json.dumps(args.rows)) > 16000:
-                raise ToolFailure("Answer too large")
+                raise ToolFailure("Answer too large", "ANSWER_LIMIT")
             return "ACCEPT", "answer", args.model_dump()
         if name == "refuse":
             order = self.order(args.order_id)
@@ -251,9 +254,9 @@ class World:
                 if (
                     date.fromisoformat(self.task.as_of) - date.fromisoformat(order["created_at"])
                 ).days <= self.task.rules["return_days"]:
-                    raise ToolFailure("Return window has not expired")
+                    raise ToolFailure("Return window has not expired", "REFUSAL_NOT_SUPPORTED")
             elif args.code == "immutable_order" and order["status"] == "open":
-                raise ToolFailure("Order is amendable")
+                raise ToolFailure("Order is amendable", "REFUSAL_NOT_SUPPORTED")
             # Out-of-stock semantic relevance is checked independently after execution.
             return "ACCEPT", "refused", args.model_dump()
         if name == "reserve_inventory":
@@ -263,41 +266,47 @@ class World:
                     (args.quantity, args.sku, args.quantity),
                 )
                 if cur.rowcount != 1:
-                    raise ToolFailure("Insufficient stock")
+                    raise ToolFailure("Insufficient stock", "INSUFFICIENT_STOCK")
             return "ACCEPT", "reserved", args.model_dump()
         if name != "submit_draft":
-            raise ToolFailure("Unknown terminal tool")
+            raise ToolFailure("Unknown terminal tool", "UNKNOWN_TOOL")
         order = self.order(args.order_id)
         if len({c.line_id for c in args.changes}) != len(args.changes):
-            raise ToolFailure("Duplicate line changes")
+            raise ToolFailure("Duplicate line changes", "DUPLICATE_LINE_CHANGE")
         with self.db:
-            for change in args.changes:
+            for change_index, change in enumerate(args.changes):
                 row = self.db.execute(
                     "SELECT * FROM lines WHERE id=? AND order_id=?", (change.line_id, args.order_id)
                 ).fetchone()
                 if row is None:
-                    raise ToolFailure("Line is unavailable")
+                    raise ToolFailure("Line is unavailable", "LINE_UNAVAILABLE")
                 line = dict(row)
                 if change.operation == "return":
                     age = (date.fromisoformat(self.task.as_of) - date.fromisoformat(order["created_at"])).days
                     if order["status"] != "delivered" or age > self.task.rules["return_days"]:
-                        raise ToolFailure("Return is not allowed")
+                        raise ToolFailure("Return is not allowed", "RETURN_NOT_ALLOWED")
                     qty = change.quantity
-                    if qty is None or change.sku is not None or qty > line["quantity"] - line["returned"]:
-                        raise ToolFailure("Invalid return quantity")
+                    if change.sku is not None and change.sku != line["sku"]:
+                        raise ToolFailure("Return SKU conflicts with current line", "CONFLICTING_SKU", f"/changes/{change_index}/sku")
+                    if qty is None or qty > line["quantity"] - line["returned"]:
+                        raise ToolFailure("Invalid return quantity", "INVALID_RETURN_QUANTITY", f"/changes/{change_index}/quantity")
                     self.db.execute("UPDATE lines SET returned=returned+? WHERE id=?", (qty, line["id"]))
                     self.db.execute("UPDATE stock SET available=available+? WHERE sku=?", (qty, line["sku"]))
                     continue
                 if order["status"] != "open" or line["returned"]:
-                    raise ToolFailure("Order cannot be amended")
+                    raise ToolFailure("Order cannot be amended", "ORDER_NOT_AMENDABLE")
                 sku, qty = line["sku"], line["quantity"]
                 if change.operation == "replace":
-                    if change.sku is None or change.quantity is not None:
-                        raise ToolFailure("Replacement requires only a SKU")
+                    if change.sku is None:
+                        raise ToolFailure("Replacement requires a SKU", "MISSING_REQUIRED_FIELD", f"/changes/{change_index}/sku")
+                    if change.quantity is not None and change.quantity != line["quantity"]:
+                        raise ToolFailure("Replacement quantity conflicts with current line", "CONFLICTING_QUANTITY", f"/changes/{change_index}/quantity")
                     sku = change.sku
                 elif change.operation == "quantity":
-                    if change.quantity is None or change.sku is not None:
-                        raise ToolFailure("Quantity change requires only quantity")
+                    if change.quantity is None:
+                        raise ToolFailure("Quantity change requires quantity", "MISSING_REQUIRED_FIELD", f"/changes/{change_index}/quantity")
+                    if change.sku is not None and change.sku != line["sku"]:
+                        raise ToolFailure("Quantity change SKU conflicts with current line", "CONFLICTING_SKU", f"/changes/{change_index}/sku")
                     qty = change.quantity
                 self.db.execute(
                     "UPDATE stock SET available=available+? WHERE sku=?", (line["quantity"], line["sku"])
@@ -306,7 +315,7 @@ class World:
                     "UPDATE stock SET available=available-? WHERE sku=? AND available>=?", (qty, sku, qty)
                 )
                 if cur.rowcount != 1:
-                    raise ToolFailure("Insufficient stock or unknown SKU")
+                    raise ToolFailure("Insufficient stock or unknown SKU", "INSUFFICIENT_STOCK_OR_UNKNOWN_SKU")
                 self.db.execute("UPDATE lines SET sku=?,quantity=? WHERE id=?", (sku, qty, line["id"]))
         return "ACCEPT", "changed", args.model_dump()
 
