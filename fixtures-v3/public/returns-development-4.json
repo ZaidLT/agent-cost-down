@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "returns-development-4",
+  "adapter": "orders",
+  "family": "returns",
+  "split": "development",
+  "template_group": "ordinary_return",
+  "request": "Return one tee from my delivered order O1211B, if the return policy permits it.",
+  "customer_id": "C1211",
+  "as_of": "2026-10-24",
+  "snapshot": "snapshots/returns-development-4.json",
+  "snapshot_hash": "fc14b28cbc6df6e66e29484fb05c99a7096e0e6faa14675b1faf5a36c33bb395",
+  "rules": {
+    "return_days": 30,
+    "return_window_anchor": "order.created_at",
+    "return_window_inclusive": true,
+    "amendable_status": "open"
+  }
+}

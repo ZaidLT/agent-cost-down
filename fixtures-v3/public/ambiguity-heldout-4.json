@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "ambiguity-heldout-4",
+  "adapter": "orders",
+  "family": "ambiguity",
+  "split": "heldout",
+  "template_group": "missing_request_or_variant_stock",
+  "request": "Replace the tee in O1423 with BLACK-L if available. Otherwise refuse without changing anything.",
+  "customer_id": "C1423",
+  "as_of": "2026-10-24",
+  "snapshot": "snapshots/ambiguity-heldout-4.json",
+  "snapshot_hash": "7bca078e8bd3b8f0091c0f4769178ce9904a9513f171ca93eedd5778a34b6d4b",
+  "rules": {
+    "return_days": 30,
+    "return_window_anchor": "order.created_at",
+    "return_window_inclusive": true,
+    "amendable_status": "open"
+  }
+}

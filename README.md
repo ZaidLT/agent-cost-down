@@ -46,10 +46,10 @@ Open http://127.0.0.1:5173. Compare five policies, inspect the Nano-to-Ultra tes
 
 The repository remains private during preparation; cloning requires authorized GitHub access. Publication requires the owner’s explicit approval.
 
-The repository includes 40 immutable generated tasks. To generate a new version without replacing them:
+The repository includes 40 immutable generated tasks. The active suite is `fixtures-v3` (generator version 3); `fixtures` preserves version 2 and the original human review. To generate another version without replacing either:
 
 ```sh
-uv run acd --suite fixtures-v3 generate --seed 20261025 --quantity-base 3 --return-days 30 --as-of 2026-10-24
+uv run acd --suite fixtures-v4 generate --seed 20261025 --quantity-base 3 --return-days 30 --as-of 2026-10-24
 ```
 
 ## Enable one bounded real run

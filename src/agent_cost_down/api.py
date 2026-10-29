@@ -52,7 +52,7 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
         raise RuntimeError("Vercel live execution requires the private queue consumer")
     if live and os.getenv("VERCEL_ENV") == "preview":
         raise RuntimeError("Branched previews cannot spend inference credit; use the protected production ledger")
-    root = Path(os.getenv("ACD_SUITE", "fixtures"))
+    root = Path(os.getenv("ACD_SUITE", "fixtures-v3"))
     state = {"worker": None, "db": db, "models": model_catalog, "policies": policies}
 
     async def worker(once=False):

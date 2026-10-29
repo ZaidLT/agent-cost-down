@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "returns-heldout-4",
+  "adapter": "orders",
+  "family": "returns",
+  "split": "heldout",
+  "template_group": "previous_partial_return",
+  "request": "I already returned one tee from O1221B. Please return one more if it is still eligible.",
+  "customer_id": "C1221",
+  "as_of": "2026-10-24",
+  "snapshot": "snapshots/returns-heldout-4.json",
+  "snapshot_hash": "62f5ac8b41066ee5379bb9b01337fbae1e53938a5e765da6b154b78bfab6ede5",
+  "rules": {
+    "return_days": 30,
+    "return_window_anchor": "order.created_at",
+    "return_window_inclusive": true,
+    "amendable_status": "open"
+  }
+}

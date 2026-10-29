@@ -72,7 +72,7 @@ def generate(root: Path, seed=20261024, *, quantity_base=3, return_days=30, as_o
     manifest = {
         "schema_version": 1,
         "seed": seed,
-        "generator_version": "2",
+        "generator_version": "3",
         "groups": GROUPS,
         "parameters": {"quantity_base": quantity_base, "return_days": return_days, "as_of": as_of},
         "tasks": [],
@@ -110,7 +110,7 @@ def generate(root: Path, seed=20261024, *, quantity_base=3, return_days=30, as_o
                 if variant % 2:
                     state["orders"][1]["created_at"] = (today - timedelta(days=return_days + 5)).isoformat()
                     expected = copy.deepcopy(state)
-                    resolution, details = "refused", {"code": "return_window"}
+                    resolution, details = "refused", {"code": "return_window", "order_id": f"O{i}B"}
                     request = (
                         f"Return one tee from my delivered order O{i}B, if the return policy permits it."
                     )
@@ -137,6 +137,18 @@ def generate(root: Path, seed=20261024, *, quantity_base=3, return_days=30, as_o
                 else:
                     cutoff = (today - timedelta(days=9)).isoformat()
                     request = f"For my open orders created since {cutoff}, total the line value in cents. Return a single row with total_cents."
+                    # Independently exercise each predicate: an old open order and a recent delivered order.
+                    state["orders"].extend([
+                        {"id": f"O{i}OLD", "customer_id": f"C{i}", "status": "open",
+                         "created_at": (today - timedelta(days=12)).isoformat()},
+                        {"id": f"O{i}RECENT", "customer_id": f"C{i}", "status": "delivered",
+                         "created_at": (today - timedelta(days=2)).isoformat()},
+                    ])
+                    state["lines"].extend([
+                        {"id": f"L{i}OLD", "order_id": f"O{i}OLD", "sku": "MUG", "quantity": 2, "returned": 0},
+                        {"id": f"L{i}RECENT", "order_id": f"O{i}RECENT", "sku": "BLACK-M", "quantity": 1, "returned": 0},
+                    ])
+                    expected = copy.deepcopy(state)
                     prices = {p["sku"]: p["unit_cents"] for p in state["products"]}
                     ids = {
                         o["id"]
@@ -159,14 +171,14 @@ def generate(root: Path, seed=20261024, *, quantity_base=3, return_days=30, as_o
                     next(s for s in state["stock"] if s["sku"] == target)["available"] = 0
                     expected = copy.deepcopy(state)
                     request = f"Replace the tee in O{i} with {target} if available. Otherwise refuse without changing anything."
-                    resolution, details = "refused", {"code": "out_of_stock"}
+                    resolution, details = "refused", {"code": "out_of_stock", "order_id": f"O{i}"}
                 else:
                     request = (
                         f"Change the tee quantity in O{i}." if variant < 4 else "Please update my order."
                     )
                     resolution, details = (
                         "clarification",
-                        {"missing": ["quantity"] if variant < 4 else ["request"]},
+                        {"missing": ["quantity"]} if variant < 4 else {"missing": ["request"], "allowed_missing_sets": [["request"], ["request", "order_id"]]},
                     )
             task_id = f"{family}-{split}-{variant % 4 + 1}"
             task = PublicTask(
@@ -179,7 +191,8 @@ def generate(root: Path, seed=20261024, *, quantity_base=3, return_days=30, as_o
                 as_of=as_of,
                 snapshot=f"snapshots/{task_id}.json",
                 snapshot_hash=digest(state),
-                rules={"return_days": return_days, "amendable_status": "open"},
+                rules={"return_days": return_days, "return_window_anchor": "order.created_at",
+                       "return_window_inclusive": True, "amendable_status": "open"},
             )
             oracle = {
                 "task_id": task_id,

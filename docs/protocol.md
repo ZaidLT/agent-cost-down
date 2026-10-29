@@ -4,7 +4,7 @@ Five families each have eight synthetic cases: order/catalog resolution, quantit
 
 These are variations within supported workflows, not forty independently sampled production use cases. The generator and automated consistency checks do not substitute for human request/state/oracle review.
 
-Record the review in fixtures/review.json:
+Record the review in fixtures-v3/review.json:
 
 ```json
 {
@@ -54,3 +54,10 @@ No claim of statistical non-inferiority or general production equivalence is sup
 Use the report exporter, which blocks secret-bearing artifacts. Review synthetic prompts and traces. Never bundle account files or evaluator expectations in the static explorer. Publish a genuine report under frontend/public/reports, update index.json to its versioned filename, and preserve the original file.
 
 A scripted illustration cannot be relabeled as a model benchmark. A cached genuine run cannot be counted as a new live execution.
+
+
+## Pre-freeze review corrections, October 29
+
+The human and AI-assisted review of generator v2 identified scoring defects before any full development or held-out execution. The original suite and review remain under fixtures/. Generator v3 under fixtures-v3/ accepts the two justified missing-request clarification sets, requires refusals to cite the requested order, adds independent date/status distractors to held-out analysis, and publishes the inclusive order-created-date return anchor. A human amendment acknowledgement is required before the full development comparison. Earlier pilot records are retained and are not reclassified as v3 measurements; rerun the single-concurrency pilot against v3.
+
+The study remains twenty development and twenty held-out tasks across five families. Multiple tasks share scenario templates; repetitions and numeric variants do not establish independent real-world coverage. The prior partial return does not supply an over-remaining-quantity refusal case. Report these limitations explicitly.

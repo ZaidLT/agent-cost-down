@@ -89,7 +89,7 @@ async def execute(
         record = await run_policy(
             task, snapshot, config, provider, repetition=repetition, source=source, run_id=row["id"]
         )
-        record.outcome = evaluate_from_file(record, Path(os.getenv("ACD_SUITE", "fixtures")))
+        record.outcome = evaluate_from_file(record, Path(os.getenv("ACD_SUITE", "fixtures-v3")))
         clean = public_export(record.model_dump(mode="json"))
         db.finish(row["id"], clean)
         save(output, clean)
@@ -374,7 +374,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Reproducible policy execution with independent outcome evaluation"
     )
-    parser.add_argument("--suite", default=os.getenv("ACD_SUITE", "fixtures"))
+    parser.add_argument("--suite", default=os.getenv("ACD_SUITE", "fixtures-v3"))
     parser.add_argument("--models", default=os.getenv("ACD_MODELS", "private/models.json"))
     parser.add_argument("--credits", default=os.getenv("ACD_CREDITS", "private/credits.json"))
     sub = parser.add_subparsers(dest="command", required=True)

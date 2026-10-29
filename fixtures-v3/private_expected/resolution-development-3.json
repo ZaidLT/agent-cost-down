@@ -1,0 +1,111 @@
+{
+  "task_id": "resolution-development-3",
+  "resolution": "changed",
+  "expected_state": {
+    "products": [
+      {
+        "sku": "BLACK-L",
+        "name": "Everyday tee",
+        "color": "black",
+        "size": "large",
+        "unit_cents": 2700
+      },
+      {
+        "sku": "BLACK-M",
+        "name": "Everyday tee",
+        "color": "black",
+        "size": "medium",
+        "unit_cents": 2500
+      },
+      {
+        "sku": "BLUE-M",
+        "name": "Everyday tee",
+        "color": "blue",
+        "size": "medium",
+        "unit_cents": 2500
+      },
+      {
+        "sku": "MUG",
+        "name": "Studio mug",
+        "color": "white",
+        "size": "standard",
+        "unit_cents": 1800
+      }
+    ],
+    "stock": [
+      {
+        "sku": "BLACK-L",
+        "available": 24
+      },
+      {
+        "sku": "BLACK-M",
+        "available": 25
+      },
+      {
+        "sku": "BLUE-M",
+        "available": 30
+      },
+      {
+        "sku": "MUG",
+        "available": 20
+      }
+    ],
+    "orders": [
+      {
+        "id": "O1006",
+        "customer_id": "C1006",
+        "status": "open",
+        "created_at": "2026-10-20"
+      },
+      {
+        "id": "O1006B",
+        "customer_id": "C1006",
+        "status": "delivered",
+        "created_at": "2026-10-14"
+      },
+      {
+        "id": "O1006X",
+        "customer_id": "OTHER",
+        "status": "open",
+        "created_at": "2026-10-20"
+      }
+    ],
+    "lines": [
+      {
+        "id": "L1006",
+        "order_id": "O1006",
+        "sku": "BLACK-M",
+        "quantity": 2,
+        "returned": 0
+      },
+      {
+        "id": "L1006B",
+        "order_id": "O1006",
+        "sku": "MUG",
+        "quantity": 1,
+        "returned": 0
+      },
+      {
+        "id": "L1006C",
+        "order_id": "O1006B",
+        "sku": "BLACK-M",
+        "quantity": 3,
+        "returned": 0
+      },
+      {
+        "id": "L1006X",
+        "order_id": "O1006X",
+        "sku": "MUG",
+        "quantity": 7,
+        "returned": 0
+      }
+    ]
+  },
+  "details": {
+    "operation": "replace",
+    "order_id": "O1006",
+    "line_id": "L1006",
+    "value": "BLACK-M"
+  },
+  "review_status": "pending_human_review"
+}

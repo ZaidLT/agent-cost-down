@@ -4,7 +4,7 @@ import html
 import json
 from pathlib import Path
 
-root = Path("fixtures")
+root = Path("fixtures-v3")
 manifest = json.loads((root / "manifest.json").read_text())
 parts = [
     '<!doctype html><html lang="en"><meta charset="utf-8">',
@@ -17,7 +17,7 @@ parts = [
     '<p>Private evaluator expectations. Do not bundle this packet into the website or agent tools.</p>',
     '<p>Check the request, authorized customer, rules, original snapshot and expected result for every task.',
     'Inspect positive and negative examples in each family. Record actual reviewer, date, task IDs and',
-    'notes in fixtures/review.json only after completing the review. These checkboxes are a reading aid',
+    'notes in fixtures-v3/review.json only after completing the review. These checkboxes are a reading aid',
     'and do not save or certify review.</p>',
 ]
 
@@ -43,7 +43,7 @@ for entry in manifest["tasks"]:
         '<label>Review notes <textarea rows="2" cols="70"></textarea></label></article>',
     ])
 parts.append('</html>')
-destination = Path("private/fixture-review.html")
+destination = Path("private/fixture-review-v3.html")
 destination.parent.mkdir(exist_ok=True)
 destination.write_text("\n".join(parts))
 print(f"Prepared {len(manifest['tasks'])} tasks for actual human review: {destination}")

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "resolution-heldout-3",
+  "adapter": "orders",
+  "family": "resolution",
+  "split": "heldout",
+  "template_group": "size_alias",
+  "request": "In O1018, move my black shirt up from medium to large. Keep its color, quantity, and the other items unchanged.",
+  "customer_id": "C1018",
+  "as_of": "2026-10-24",
+  "snapshot": "snapshots/resolution-heldout-3.json",
+  "snapshot_hash": "7f538ab1513f2d615e81b1ba6b30fb2a930240f8b2ce7868c2c468f01f6b5f28",
+  "rules": {
+    "return_days": 30,
+    "return_window_anchor": "order.created_at",
+    "return_window_inclusive": true,
+    "amendable_status": "open"
+  }
+}

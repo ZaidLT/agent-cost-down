@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "returns-development-3",
+  "adapter": "orders",
+  "family": "returns",
+  "split": "development",
+  "template_group": "ordinary_return",
+  "request": "Return 1 tee from delivered order O1208B.",
+  "customer_id": "C1208",
+  "as_of": "2026-10-24",
+  "snapshot": "snapshots/returns-development-3.json",
+  "snapshot_hash": "442db1cf1b15f7537bf646f86a4ef27ef47c44894838f0b8cdfde72e6f0dbd23",
+  "rules": {
+    "return_days": 30,
+    "return_window_anchor": "order.created_at",
+    "return_window_inclusive": true,
+    "amendable_status": "open"
+  }
+}

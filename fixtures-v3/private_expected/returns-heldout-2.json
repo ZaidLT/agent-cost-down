@@ -1,0 +1,109 @@
+{
+  "task_id": "returns-heldout-2",
+  "resolution": "refused",
+  "expected_state": {
+    "products": [
+      {
+        "sku": "BLACK-L",
+        "name": "Everyday tee",
+        "color": "black",
+        "size": "large",
+        "unit_cents": 2700
+      },
+      {
+        "sku": "BLACK-M",
+        "name": "Everyday tee",
+        "color": "black",
+        "size": "medium",
+        "unit_cents": 2500
+      },
+      {
+        "sku": "BLUE-M",
+        "name": "Everyday tee",
+        "color": "blue",
+        "size": "medium",
+        "unit_cents": 2500
+      },
+      {
+        "sku": "MUG",
+        "name": "Studio mug",
+        "color": "white",
+        "size": "standard",
+        "unit_cents": 1800
+      }
+    ],
+    "stock": [
+      {
+        "sku": "BLACK-L",
+        "available": 19
+      },
+      {
+        "sku": "BLACK-M",
+        "available": 12
+      },
+      {
+        "sku": "BLUE-M",
+        "available": 13
+      },
+      {
+        "sku": "MUG",
+        "available": 28
+      }
+    ],
+    "orders": [
+      {
+        "id": "O1215",
+        "customer_id": "C1215",
+        "status": "open",
+        "created_at": "2026-10-20"
+      },
+      {
+        "id": "O1215B",
+        "customer_id": "C1215",
+        "status": "delivered",
+        "created_at": "2026-09-19"
+      },
+      {
+        "id": "O1215X",
+        "customer_id": "OTHER",
+        "status": "open",
+        "created_at": "2026-10-20"
+      }
+    ],
+    "lines": [
+      {
+        "id": "L1215",
+        "order_id": "O1215",
+        "sku": "BLUE-M",
+        "quantity": 2,
+        "returned": 0
+      },
+      {
+        "id": "L1215B",
+        "order_id": "O1215",
+        "sku": "MUG",
+        "quantity": 1,
+        "returned": 0
+      },
+      {
+        "id": "L1215C",
+        "order_id": "O1215B",
+        "sku": "BLACK-M",
+        "quantity": 3,
+        "returned": 1
+      },
+      {
+        "id": "L1215X",
+        "order_id": "O1215X",
+        "sku": "MUG",
+        "quantity": 7,
+        "returned": 0
+      }
+    ]
+  },
+  "details": {
+    "code": "return_window",
+    "order_id": "O1215B"
+  },
+  "review_status": "pending_human_review"
+}

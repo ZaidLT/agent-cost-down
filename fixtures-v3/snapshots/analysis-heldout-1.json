@@ -1,0 +1,126 @@
+{
+  "products": [
+    {
+      "sku": "BLACK-L",
+      "name": "Everyday tee",
+      "color": "black",
+      "size": "large",
+      "unit_cents": 2700
+    },
+    {
+      "sku": "BLACK-M",
+      "name": "Everyday tee",
+      "color": "black",
+      "size": "medium",
+      "unit_cents": 2500
+    },
+    {
+      "sku": "BLUE-M",
+      "name": "Everyday tee",
+      "color": "blue",
+      "size": "medium",
+      "unit_cents": 2500
+    },
+    {
+      "sku": "MUG",
+      "name": "Studio mug",
+      "color": "white",
+      "size": "standard",
+      "unit_cents": 1800
+    }
+  ],
+  "stock": [
+    {
+      "sku": "BLACK-L",
+      "available": 24
+    },
+    {
+      "sku": "BLACK-M",
+      "available": 18
+    },
+    {
+      "sku": "BLUE-M",
+      "available": 12
+    },
+    {
+      "sku": "MUG",
+      "available": 17
+    }
+  ],
+  "orders": [
+    {
+      "id": "O1312",
+      "customer_id": "C1312",
+      "status": "open",
+      "created_at": "2026-10-20"
+    },
+    {
+      "id": "O1312B",
+      "customer_id": "C1312",
+      "status": "delivered",
+      "created_at": "2026-10-14"
+    },
+    {
+      "id": "O1312X",
+      "customer_id": "OTHER",
+      "status": "open",
+      "created_at": "2026-10-20"
+    },
+    {
+      "id": "O1312OLD",
+      "customer_id": "C1312",
+      "status": "open",
+      "created_at": "2026-10-12"
+    },
+    {
+      "id": "O1312RECENT",
+      "customer_id": "C1312",
+      "status": "delivered",
+      "created_at": "2026-10-22"
+    }
+  ],
+  "lines": [
+    {
+      "id": "L1312",
+      "order_id": "O1312",
+      "sku": "BLUE-M",
+      "quantity": 2,
+      "returned": 0
+    },
+    {
+      "id": "L1312B",
+      "order_id": "O1312",
+      "sku": "MUG",
+      "quantity": 1,
+      "returned": 0
+    },
+    {
+      "id": "L1312C",
+      "order_id": "O1312B",
+      "sku": "BLACK-M",
+      "quantity": 3,
+      "returned": 0
+    },
+    {
+      "id": "L1312X",
+      "order_id": "O1312X",
+      "sku": "MUG",
+      "quantity": 7,
+      "returned": 0
+    },
+    {
+      "id": "L1312OLD",
+      "order_id": "O1312OLD",
+      "sku": "MUG",
+      "quantity": 2,
+      "returned": 0
+    },
+    {
+      "id": "L1312RECENT",
+      "order_id": "O1312RECENT",
+      "sku": "BLACK-M",
+      "quantity": 1,
+      "returned": 0
+    }
+  ]
+}

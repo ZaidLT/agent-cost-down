@@ -120,7 +120,7 @@ async def main(args):
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--models", default="private/models.json")
 parser.add_argument("--credits", default="private/credits.json")
-parser.add_argument("--suite", default="fixtures")
+parser.add_argument("--suite", default="fixtures-v3")
 parser.add_argument("--output", required=True)
 parser.add_argument("--concurrency", type=int, choices=[1, 2], default=1)
 parser.add_argument("--deadline", type=int, choices=[180, 300, 600], default=180)

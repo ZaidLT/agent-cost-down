@@ -11,7 +11,7 @@ from agent_cost_down.runner import run_policy
 
 
 async def main():
-    task, snapshot = load_task(Path("fixtures"), "resolution-development-1")
+    task, snapshot = load_task(Path("fixtures-v3"), "resolution-development-1")
     task = task.model_copy(
         update={"adapter": "inventory", "id": "inventory-reservation", "request": "Reserve two mugs."}
     )

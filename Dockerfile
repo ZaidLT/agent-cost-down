@@ -4,7 +4,7 @@ WORKDIR /app
 COPY pyproject.toml uv.lock ./
 COPY src ./src
 RUN uv sync --locked --no-dev
-COPY fixtures ./fixtures
+COPY fixtures-v3 ./fixtures-v3
 COPY schemas ./schemas
 ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1 ACD_LIVE_ENABLED=false
 RUN useradd --create-home --uid 10001 acd

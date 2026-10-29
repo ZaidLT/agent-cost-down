@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "ambiguity-heldout-3",
+  "adapter": "orders",
+  "family": "ambiguity",
+  "split": "heldout",
+  "template_group": "missing_request_or_variant_stock",
+  "request": "Please update my order.",
+  "customer_id": "C1420",
+  "as_of": "2026-10-24",
+  "snapshot": "snapshots/ambiguity-heldout-3.json",
+  "snapshot_hash": "acc50d7e6425e394ba95872b58316e20353f206fbefc271bc9b29849aa492733",
+  "rules": {
+    "return_days": 30,
+    "return_window_anchor": "order.created_at",
+    "return_window_inclusive": true,
+    "amendable_status": "open"
+  }
+}

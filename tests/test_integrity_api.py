@@ -70,7 +70,7 @@ async def test_all_generated_oracles_are_consistent(suite):
         elif oracle["resolution"] == "answer":
             call = tool("submit_answer", details)
         elif oracle["resolution"] == "clarification":
-            call = tool("clarify", {**details, "question": "Please specify the missing information."})
+            call = tool("clarify", {"missing": details["missing"], "question": "Please specify the missing information."})
         else:
             index = 1 if task.family == "returns" else 0
             call = tool(

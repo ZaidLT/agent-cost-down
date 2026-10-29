@@ -21,9 +21,13 @@ def evaluate(run: RunRecord, oracle: dict) -> Outcome:
     if oracle["resolution"] == "answer":
         checks["response"] = result.get("rows") == details["rows"]
     elif oracle["resolution"] == "clarification":
-        checks["response"] = set(result.get("missing", [])) == set(details["missing"])
+        allowed = details.get("allowed_missing_sets", [details["missing"]])
+        checks["response"] = any(set(result.get("missing", [])) == set(fields) for fields in allowed)
     elif oracle["resolution"] == "refused":
-        checks["response"] = result.get("code") == details["code"]
+        checks["response"] = (
+            result.get("code") == details["code"]
+            and result.get("order_id") == details["order_id"]
+        )
     elif oracle["resolution"] == "changed":
         changes = result.get("changes", [])
         expected_value = details["value"]

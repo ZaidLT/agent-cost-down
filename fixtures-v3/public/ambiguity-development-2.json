@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "ambiguity-development-2",
+  "adapter": "orders",
+  "family": "ambiguity",
+  "split": "development",
+  "template_group": "missing_quantity_or_stock",
+  "request": "Replace the tee in O1404 with BLACK-M if available. Otherwise refuse without changing anything.",
+  "customer_id": "C1404",
+  "as_of": "2026-10-24",
+  "snapshot": "snapshots/ambiguity-development-2.json",
+  "snapshot_hash": "e3eeffbeb506cc30fc07dcdbbf9dd5cb14eee36d2a59b27d53a9df4c6ba00d1c",
+  "rules": {
+    "return_days": 30,
+    "return_window_anchor": "order.created_at",
+    "return_window_inclusive": true,
+    "amendable_status": "open"
+  }
+}

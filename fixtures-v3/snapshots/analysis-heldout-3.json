@@ -1,0 +1,126 @@
+{
+  "products": [
+    {
+      "sku": "BLACK-L",
+      "name": "Everyday tee",
+      "color": "black",
+      "size": "large",
+      "unit_cents": 2700
+    },
+    {
+      "sku": "BLACK-M",
+      "name": "Everyday tee",
+      "color": "black",
+      "size": "medium",
+      "unit_cents": 2500
+    },
+    {
+      "sku": "BLUE-M",
+      "name": "Everyday tee",
+      "color": "blue",
+      "size": "medium",
+      "unit_cents": 2500
+    },
+    {
+      "sku": "MUG",
+      "name": "Studio mug",
+      "color": "white",
+      "size": "standard",
+      "unit_cents": 1800
+    }
+  ],
+  "stock": [
+    {
+      "sku": "BLACK-L",
+      "available": 15
+    },
+    {
+      "sku": "BLACK-M",
+      "available": 30
+    },
+    {
+      "sku": "BLUE-M",
+      "available": 17
+    },
+    {
+      "sku": "MUG",
+      "available": 21
+    }
+  ],
+  "orders": [
+    {
+      "id": "O1320",
+      "customer_id": "C1320",
+      "status": "open",
+      "created_at": "2026-10-20"
+    },
+    {
+      "id": "O1320B",
+      "customer_id": "C1320",
+      "status": "delivered",
+      "created_at": "2026-10-14"
+    },
+    {
+      "id": "O1320X",
+      "customer_id": "OTHER",
+      "status": "open",
+      "created_at": "2026-10-20"
+    },
+    {
+      "id": "O1320OLD",
+      "customer_id": "C1320",
+      "status": "open",
+      "created_at": "2026-10-12"
+    },
+    {
+      "id": "O1320RECENT",
+      "customer_id": "C1320",
+      "status": "delivered",
+      "created_at": "2026-10-22"
+    }
+  ],
+  "lines": [
+    {
+      "id": "L1320",
+      "order_id": "O1320",
+      "sku": "BLUE-M",
+      "quantity": 2,
+      "returned": 0
+    },
+    {
+      "id": "L1320B",
+      "order_id": "O1320",
+      "sku": "MUG",
+      "quantity": 1,
+      "returned": 0
+    },
+    {
+      "id": "L1320C",
+      "order_id": "O1320B",
+      "sku": "BLACK-M",
+      "quantity": 3,
+      "returned": 0
+    },
+    {
+      "id": "L1320X",
+      "order_id": "O1320X",
+      "sku": "MUG",
+      "quantity": 7,
+      "returned": 0
+    },
+    {
+      "id": "L1320OLD",
+      "order_id": "O1320OLD",
+      "sku": "MUG",
+      "quantity": 2,
+      "returned": 0
+    },
+    {
+      "id": "L1320RECENT",
+      "order_id": "O1320RECENT",
+      "sku": "BLACK-M",
+      "quantity": 1,
+      "returned": 0
+    }
+  ]
+}
