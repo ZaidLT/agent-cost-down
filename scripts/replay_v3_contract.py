@@ -9,7 +9,10 @@ from agent_cost_down.evaluation.outcomes import evaluate_from_file
 
 results = {}
 for split, expected_attempts, expected_finals in [("development", 12, 9), ("heldout", 48, 33)]:
-    records = json.loads(Path(f"artifacts/{split}-v3-300-report.json").read_text())["runs"]
+    source = Path(f"artifacts/{split}-v3-300-report.json")
+    if not source.exists():
+        source = Path(f"evidence/v3/{split}-report.json")
+    records = json.loads(source.read_text())["runs"]
     counts = Counter()
     for raw in records:
         for index, attempt in enumerate(raw["attempts"]):

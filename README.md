@@ -166,3 +166,8 @@ CI runs the backend suite with a PostgreSQL service, browser tests, production b
 No CLI telemetry is collected. Please report quickstart completion time and setup blockers through GitHub issues. Visits and stars are not counted as completed use.
 
 MIT license.
+
+
+## Inspect the original evidence
+
+The original development report, held-out report and freeze are preserved in `evidence/v3/`. Each report includes its raw run records. Run `uv run python scripts/replay_v3_contract.py` for the offline counterfactual replay. It uses no inference and does not rewrite model results. V4 evidence will be kept separately.
