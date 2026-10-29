@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import hmac
+import ipaddress
 import json
 import logging
 import os
@@ -170,7 +171,7 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
     @app.middleware("http")
     async def preparation_access(request, call_next):
         if preparation and not hmac.compare_digest(
-            request.headers.get("authorization", ""), "Bearer " + preparation_token
+            request.headers.get("authorization", "").encode(), ("Bearer " + preparation_token).encode()
         ):
             return JSONResponse({"detail": "Private preparation deployment"}, status_code=401)
         return await call_next(request)
@@ -181,6 +182,14 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
         allow_methods=["GET", "POST"],
         allow_headers=["Content-Type", "Idempotency-Key", "X-Judge-Code", "Authorization"],
     )
+
+    if preparation:
+        @app.get("/v1/preparation/network", include_in_schema=False)
+        async def network_check(request: Request):
+            # Protected by the preparation bearer token; never enabled in the public release.
+            return {"peer": request.client.host if request.client else None,
+                    "forwarded": request.headers.getlist("x-forwarded-for"),
+                    "cloudflare_client": request.headers.get("cf-connecting-ip")}
 
     @app.get("/healthz")
     async def health():
@@ -227,6 +236,14 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
             address = request.headers.get("x-vercel-forwarded-for", "").strip()
             if not address or "," in address:
                 raise HTTPException(503, "Trusted client address unavailable")
+        elif os.getenv("RENDER") == "true":
+            # Enable only after a protected spoof-header probe verifies Render's Cloudflare ingress.
+            if os.getenv("ACD_RENDER_PROXY_VERIFIED") != "true":
+                raise HTTPException(503, "Trusted client address has not been verified")
+            try:
+                address = str(ipaddress.ip_address(request.headers.get("cf-connecting-ip", "")))
+            except ValueError:
+                raise HTTPException(503, "Trusted client address unavailable") from None
         client = hmac.new(
             os.environ["ACD_CLIENT_SALT"].encode(), address.encode(), hashlib.sha256
         ).hexdigest()

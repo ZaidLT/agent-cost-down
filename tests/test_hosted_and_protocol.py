@@ -134,7 +134,7 @@ def test_preparation_mode_protects_every_http_endpoint(monkeypatch):
     monkeypatch.setenv('ACD_PREPARATION_MODE', 'true')
     monkeypatch.setenv('ACD_PREPARATION_TOKEN', 'test-preparation-token')
     with TestClient(create_app()) as client:
-        for path in ['/healthz', '/v1/catalog', '/openapi.json']:
+        for path in ['/healthz', '/v1/catalog', '/openapi.json', '/v1/preparation/network']:
             assert client.get(path).status_code == 401
         assert client.get('/healthz', headers={'Authorization': 'Bearer wrong'}).status_code == 401
         assert client.get('/healthz', headers={'Authorization': 'Bearer test-preparation-token'}).status_code == 200
@@ -142,6 +142,7 @@ def test_preparation_mode_protects_every_http_endpoint(monkeypatch):
             'Access-Control-Request-Method': 'GET', 'Access-Control-Request-Headers': 'Authorization'})
         assert response.status_code == 200
         assert 'tasks' not in response.text
+        assert client.get('/healthz', headers={'Authorization': b'Bearer \xff'}).status_code == 401
 
 
 def test_preparation_mode_fails_closed_without_secret(monkeypatch):

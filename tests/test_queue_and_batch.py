@@ -146,3 +146,30 @@ def test_branched_preview_cannot_spend_copied_credit(monkeypatch):
     monkeypatch.setenv("ACD_LIVE_ENABLED", "true")
     with pytest.raises(RuntimeError, match="cannot spend"):
         create_app()
+
+
+def test_render_ingress_must_be_verified_before_reservation(tmp_path, monkeypatch, suite, first):
+    import hashlib
+    import hmac
+    monkeypatch.setenv('RENDER', 'true')
+    monkeypatch.setenv('ACD_LIVE_ENABLED', 'true')
+    monkeypatch.setenv('ACD_EXECUTION_MODE', 'queue')
+    monkeypatch.setenv('ACD_CLIENT_SALT', 'test')
+    monkeypatch.setenv('ACD_JUDGE_CODE', 'test')
+    monkeypatch.setenv('ACD_SUITE', str(suite))
+    monkeypatch.delenv('ACD_RENDER_PROXY_VERIFIED', raising=False)
+    db = funded('sqlite:///' + str(tmp_path / 'render.db'))
+    models = catalog()
+    async def send(run_id):
+        pass
+    app = create_app(db, models, policies={p: policy(models, p) for p in POLICIES}, queue_sender=send)
+    with TestClient(app) as client:
+        body = {'task_id': first[0].id, 'policy_id': 'small_only'}
+        headers = {'Idempotency-Key': 'render-ingress-check', 'CF-Connecting-IP': '203.0.113.10'}
+        assert client.post('/v1/runs', json=body, headers=headers).status_code == 503
+        monkeypatch.setenv('ACD_RENDER_PROXY_VERIFIED', 'true')
+        assert client.post('/v1/runs', json=body, headers={**headers, 'CF-Connecting-IP': 'bad'}).status_code == 503
+        result = client.post('/v1/runs', json=body, headers={**headers, 'X-Forwarded-For': 'forged'})
+        assert result.status_code == 202
+        row = db.get(result.json()['id'])
+        assert row['client'] == hmac.new(b'test', b'203.0.113.10', hashlib.sha256).hexdigest()
