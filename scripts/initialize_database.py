@@ -18,12 +18,15 @@ def main():
         parsed = urlsplit(url)
         if parsed.scheme not in {"postgres", "postgresql", "postgresql+psycopg"}:
             raise ValueError("A PostgreSQL integration URL is required")
+        identity = hashlib.sha256(((parsed.hostname or "") + parsed.path).encode()).hexdigest()[:16]
+        if os.getenv("VERCEL_ENV") == "preview":
+            production = os.getenv("ACD_PRODUCTION_DATABASE_FINGERPRINT")
+            if not production or identity == production:
+                raise ValueError("Preview database isolation must be verified before schema changes")
         database = Ledger(url)
         with database.engine.connect() as connection:
             assert connection.execute(text("select 1")).scalar() == 1
         database.initialize_schema()
-        # Hash only the endpoint and database name, never the credential.
-        identity = hashlib.sha256(((parsed.hostname or "") + parsed.path).encode()).hexdigest()[:16]
         print(
             json.dumps(
                 {

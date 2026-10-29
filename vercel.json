@@ -9,5 +9,5 @@
     }
   },
   "framework": "fastapi",
-  "buildCommand": "uv run --locked --no-dev python scripts/initialize_database.py"
+  "buildCommand": "uv run --locked --no-dev --no-editable python scripts/initialize_database.py"
 }
