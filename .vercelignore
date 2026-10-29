@@ -4,7 +4,12 @@ private
 artifacts
 .git
 .venv
-frontend
+frontend/node_modules
+frontend/dist
+frontend/test-results
+frontend/playwright-report
+frontend/.vercel
+frontend/.env*
 tests
 node_modules
 docs
