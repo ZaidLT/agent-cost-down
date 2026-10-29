@@ -3,9 +3,13 @@ services:
     name: agent-cost-down-api
     runtime: docker
     plan: free
-    healthCheckPath: /healthz
+    # TCP health checks preserve authenticated HTTP access during preparation.
     autoDeployTrigger: off
     envVars:
+      - key: ACD_PREPARATION_MODE
+        value: "true"
+      - key: ACD_PREPARATION_TOKEN
+        sync: false
       - key: ACD_LIVE_ENABLED
         value: "false"
       - key: ACD_MODELS

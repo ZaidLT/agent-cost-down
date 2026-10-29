@@ -127,3 +127,26 @@ def test_context_all_fields_required(first):
     for field in ["schema_version", "attempt_number"]:
         with pytest.raises(ValidationError):
             FailureContext.model_validate_json(json.dumps({**context, field: True}))
+
+
+def test_preparation_mode_protects_every_http_endpoint(monkeypatch):
+    monkeypatch.setenv('ACD_LIVE_ENABLED', 'false')
+    monkeypatch.setenv('ACD_PREPARATION_MODE', 'true')
+    monkeypatch.setenv('ACD_PREPARATION_TOKEN', 'test-preparation-token')
+    with TestClient(create_app()) as client:
+        for path in ['/healthz', '/v1/catalog', '/openapi.json']:
+            assert client.get(path).status_code == 401
+        assert client.get('/healthz', headers={'Authorization': 'Bearer wrong'}).status_code == 401
+        assert client.get('/healthz', headers={'Authorization': 'Bearer test-preparation-token'}).status_code == 200
+        response = client.options('/v1/catalog', headers={'Origin': 'http://localhost:5173',
+            'Access-Control-Request-Method': 'GET', 'Access-Control-Request-Headers': 'Authorization'})
+        assert response.status_code == 200
+        assert 'tasks' not in response.text
+
+
+def test_preparation_mode_fails_closed_without_secret(monkeypatch):
+    monkeypatch.setenv('ACD_LIVE_ENABLED', 'false')
+    monkeypatch.setenv('ACD_PREPARATION_MODE', 'true')
+    monkeypatch.delenv('ACD_PREPARATION_TOKEN', raising=False)
+    with pytest.raises(RuntimeError, match='private access token'):
+        create_app()

@@ -12,6 +12,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from sqlalchemy.exc import SQLAlchemyError
 
 from .contracts import POLICIES, Contract, ModelCatalog, PolicyConfig, digest
@@ -161,11 +162,24 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
 
     app = FastAPI(title="Agent Cost Down", version="0.1.0", lifespan=lifespan, docs_url=None, redoc_url=None)
     app.state.run_one = lambda: worker(once=True)
+    preparation = os.getenv("ACD_PREPARATION_MODE", "false").lower() == "true"
+    preparation_token = os.getenv("ACD_PREPARATION_TOKEN", "")
+    if preparation and not preparation_token:
+        raise RuntimeError("Preparation mode requires a private access token")
+
+    @app.middleware("http")
+    async def preparation_access(request, call_next):
+        if preparation and not hmac.compare_digest(
+            request.headers.get("authorization", ""), "Bearer " + preparation_token
+        ):
+            return JSONResponse({"detail": "Private preparation deployment"}, status_code=401)
+        return await call_next(request)
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=os.getenv("ACD_ALLOWED_ORIGINS", "http://localhost:5173").split(","),
         allow_methods=["GET", "POST"],
-        allow_headers=["Content-Type", "Idempotency-Key", "X-Judge-Code"],
+        allow_headers=["Content-Type", "Idempotency-Key", "X-Judge-Code", "Authorization"],
     )
 
     @app.get("/healthz")
