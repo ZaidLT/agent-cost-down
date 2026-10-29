@@ -26,6 +26,8 @@ from sqlalchemy.pool import NullPool, StaticPool
 from .contracts import Contract
 
 NANO = 1_000_000_000
+# Shares of confirmed usable credit. Fixed once a ledger is configured; the remainder is untouched safety.
+ALLOCATIONS = {"development": 0.20, "evaluation": 0.45, "judge": 0.20, "public": 0.10}
 metadata = MetaData()
 settings = Table(
     "settings",
@@ -237,10 +239,7 @@ class Ledger:
 
     def configure(self, credits: Credits):
         total = nanos(credits.usable_usd_after_liabilities)
-        allocations = {
-            k: int(total * share)
-            for k, share in {"development": 0.10, "evaluation": 0.50, "judge": 0.20, "public": 0.10}.items()
-        }
+        allocations = {k: int(total * share) for k, share in ALLOCATIONS.items()}
         # A judge reserve must remain funded throughout the promised access period.
         if credits.expires_at is not None and datetime.fromisoformat(credits.expires_at) < datetime(
             2026, 12, 16, tzinfo=UTC

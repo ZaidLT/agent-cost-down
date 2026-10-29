@@ -23,7 +23,7 @@ The credit template deliberately requires promotional-only funding, explicit awa
 
 ## Allocation
 
-Use confirmed usable promotional credit after liabilities: 10% development, 50% evaluation, 20% judges, 10% public, 10% untouched safety. Judge allocation is disabled when confirmed expiry is before the end of December 15, 2026. Never repurpose that reserve to finish a benchmark.
+Use confirmed usable promotional credit after liabilities: 20% development, 45% evaluation, 20% judges, 10% public, 5% untouched safety. Before initializing the ledger, run `uv run python scripts/reservation_forecast.py --usable-usd <confirmed amount>` with the verified price catalog and confirm every pool can hold its worst-case reservation. Judge allocation is disabled when confirmed expiry is before the end of December 15, 2026. Never repurpose that reserve to finish a benchmark.
 
 Recheck provider balance and expiry before each large batch and weekly during judging. Record the result. When evidence is stale or usage is ambiguous, stop inference and retain reservations. Do not reset or delete the ledger to regain allowance.
 

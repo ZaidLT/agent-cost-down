@@ -2,9 +2,29 @@
 
 Compare an agent's execution policies, inspect independent outcomes, and apply the exact configuration you export.
 
-A Python tool agent runs a fictional store through five fixed policies: small, Super, Ultra, small with one retry, and small followed by Ultra. Runtime checks decide whether another attempt is allowed. An independent evaluator scores the result afterward. Every attempt contributes to cost and latency.
+A Python tool agent runs a fictional store through five fixed policies built on NVIDIA Nemotron 3 models: Nano, Super, Ultra, Nano with one retry, and Nano followed by Ultra. Runtime checks decide whether another attempt is allowed. An independent evaluator scores the result afterward. Every attempt contributes to cost and latency.
 
-**Current status:** the engine, generated fixtures, budget controls, API, report explorer, and deterministic tests are implemented. The bundled explorer uses clearly labeled scripted test fixtures. No Token Factory quality or savings result has been measured. Account setup, human fixture review, real evaluation, hosted publication, video, and competition submission remain release gates.
+**Current status:** the engine, generated fixtures, budget controls, API, report explorer, and deterministic tests are implemented. The bundled explorer uses clearly labeled scripted test fixtures. No Token Factory quality or savings result has been measured. Protected Vercel and Neon setup is complete. Fresh funding confirmation, human fixture review, real evaluation, public release, video, and competition submission remain gates.
+
+## Built with NVIDIA Nemotron on Nebius Token Factory
+
+Every model call goes to the Token Factory chat-completions API with tool calling. The three model roles map to the Nemotron 3 family:
+
+| Role | Model | Used by |
+| --- | --- | --- |
+| small | Nemotron 3 Nano | Nano only, Nano + retry, and the first attempt of Nano + Ultra |
+| super | Nemotron 3 Super | Super only |
+| ultra | Nemotron 3 Ultra | Ultra only, and the escalation attempt of Nano + Ultra |
+
+The exact Token Factory model IDs, prices and verification date are pinned in each report and exported policy. A substitution, for example when a model lacks tool support on the account, is recorded there rather than hidden.
+
+The question the project answers is the one the Best Apps and Agents track poses: when can Nano handle the everyday call, and when is Ultra worth it? Three things distinguish it from a price comparison:
+
+- **Escalation is earned, not guessed.** Nano escalates to Ultra only when a deterministic runtime check rejects its action: malformed tool arguments, a broken business rule, or an exhausted step budget. No model grades its own confidence.
+- **Correctness is scored separately.** An independent evaluator checks the final store state after the run. It never influences routing, so the report can show runs that passed the runtime checks but were still wrong, which a cost-only comparison misses.
+- **The exported file is the policy that runs.** The configuration you download from the explorer is loaded by the same runner that produced the measurements.
+
+Token Factory integration: one OpenAI-compatible endpoint and one key serve all three sizes, so a policy is just an ordered list of model IDs. When per-response token usage is present, it lets each run be priced from the pinned rate card and reconciled against a durable spending ledger.
 
 ## Quickstart
 
@@ -22,7 +42,7 @@ npm ci
 npm run dev
 ```
 
-Open http://127.0.0.1:5173. Compare five policies, inspect the small-to-Ultra test trace, and export its configuration from Apply. Scripted identifiers cannot call the provider and carry no savings claim.
+Open http://127.0.0.1:5173. Compare five policies, inspect the Nano-to-Ultra test trace, and export its configuration from Apply. Scripted identifiers cannot call the provider and carry no savings claim.
 
 The repository remains private during preparation; cloning requires authorized GitHub access. Publication requires the owner’s explicit approval.
 
@@ -75,6 +95,18 @@ Twenty held-out tasks, three repetitions, and five policies produce 300 assigned
 The held-out forecast uses development spend and duration with 50% headroom. The runtime reserves the conservative maximum cost before each run, protects separate allocations, and stops if the remaining allowance is inadequate.
 
 Read [protocol and claims](docs/protocol.md) before quoting a result.
+
+## Adapt it to your agent
+
+The runner, policies, spending ledger and report are independent of the store. A domain is an adapter: typed tool contracts, read handlers, and terminal actions guarded by runtime validation. The inventory adapter in [scripts/second_adapter.py](scripts/second_adapter.py) runs through the same exported-policy runner with no runner changes.
+
+To measure your own agent today:
+
+1. Add an adapter value in `PolicyConfig` and its tools in `World.types` and `World.finish` ([domain.py](src/agent_cost_down/domain.py)). Each terminal tool should reject actions your business rules forbid. Those rejections are what trigger escalation.
+2. Write tasks as a public request plus an original-state snapshot, and keep the expected outcome private for the evaluator ([evaluation/outcomes.py](src/agent_cost_down/evaluation/outcomes.py)).
+3. Run the development comparison, freeze the candidate, run held-out tasks, and export the selected policy.
+
+Adding an adapter is a code change in this version, not a plugin interface.
 
 ## Architecture
 

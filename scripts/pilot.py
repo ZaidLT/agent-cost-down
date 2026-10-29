@@ -8,6 +8,7 @@ import time
 from datetime import UTC, datetime
 from pathlib import Path
 
+from agent_cost_down.batch import run_bounded
 from agent_cost_down.cli import execute, read_model, save
 from agent_cost_down.contracts import Limits, ModelCatalog, digest, policy
 from agent_cost_down.fixtures import load_task
@@ -52,37 +53,36 @@ async def main(args):
     age = (datetime.now(UTC) - datetime.fromisoformat(credits.confirmed_at)).total_seconds()
     if not 0 <= age <= 86400:
         raise ValueError("Recheck actual credits and update the evidence file before the pilot")
-    semaphore = asyncio.Semaphore(args.concurrency)
     limiter = RateLimiter(models.rpm, models.tpm)
     started = time.monotonic()
     records = []
 
-    async def one(task_id, pid):
-        async with semaphore:
-            task, snapshot = load_task(root, task_id)
-            config = configs[pid]
-            key = digest(
-                {
-                    "pilot": str(destination),
-                    "concurrency": args.concurrency,
-                    "task": task.id,
-                    "config": config,
-                }
-            )
-            record = await execute(
-                task,
-                snapshot,
-                config,
-                models,
-                destination / "runs" / (task_id + "-" + pid + ".json"),
-                pool="development",
-                key=key,
-                limiter=limiter,
-                max_active=args.concurrency,
-            )
-            records.append(record)
+    async def one(item):
+        task_id, pid = item
+        task, snapshot = load_task(root, task_id)
+        config = configs[pid]
+        key = digest(
+            {
+                "pilot": str(destination),
+                "concurrency": args.concurrency,
+                "task": task.id,
+                "config": config,
+            }
+        )
+        record = await execute(
+            task,
+            snapshot,
+            config,
+            models,
+            destination / "runs" / (task_id + "-" + pid + ".json"),
+            pool="development",
+            key=key,
+            limiter=limiter,
+            max_active=args.concurrency,
+        )
+        records.append(record)
 
-    await asyncio.gather(*(one(t, p) for t, p in schedule))
+    await run_bounded(schedule, one, args.concurrency)
     elapsed = time.monotonic() - started
     summary = {
         "source": "live",

@@ -19,9 +19,13 @@ Do not populate this file merely to pass a gate.
 
 ## Development and freeze
 
+Human fixture review may proceed alongside the bounded pilot, but must be complete before the full development comparison.
+
 Run six to eight development smoke tasks across the verified small, Super, and Ultra models. Record tool support, rate-limit behavior, tokens, latency, and complete task duration. Test concurrency one, then two before selecting the measured operating concurrency. The hosted API stays at one active task.
 
 Use the bounded pilot script, first without --execute to inspect its assignment. Then run it with --concurrency 1 and --concurrency 2 in separate output directories. It uses six development tasks across all three single-model baselines, one shared limiter, fresh credit evidence, durable reservations, and a maximum of two local executions. Example: uv run --env-file .env python scripts/pilot.py --output artifacts/pilot-1 --concurrency 1 --execute. Keep these measurements separate from the full development comparison.
+
+Credit allocation revision, October 29, 2026, before ledger initialization and before any inference: the split changed from 10% development, 50% evaluation, 20% judges, 10% public, 10% safety to 20/45/20/10 with 5% safety. With $25 of credit and the listed Nemotron 3 Ultra price, the largest policy reservation (Nano followed by Ultra) is about $1.57, so a $2.50 development pool would stop admitting that policy after about $0.93 of actual spend. The revised pool increases admission headroom; pilot measurements must still establish whether the complete study fits. Judge and public allocations are unchanged. scripts/reservation_forecast.py reproduces the check from the verified price catalog.
 
 Start with eight model steps, twenty tool calls, and a full-task deadline of 180 seconds. If infrastructure timeouts prevent completion, test 300 then 600 seconds on development tasks. Use the smallest successful common deadline. Do not quietly increase it during final evaluation.
 

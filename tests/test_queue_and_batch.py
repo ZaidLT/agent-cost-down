@@ -120,8 +120,8 @@ def test_no_expiry_requires_confirmation_and_keeps_judge_allocation(tmp_path):
     db = Ledger("sqlite:///" + str(tmp_path / "nonexpiring.db"))
     db.initialize_schema()
     db.configure(credits)
-    assert db.remaining("development") == 2.5
-    assert db.remaining("evaluation") == 12.5
+    assert db.remaining("development") == 5.0
+    assert db.remaining("evaluation") == 11.25
     assert db.remaining("judge") == 5.0
     assert db.remaining("public") == 2.5
 

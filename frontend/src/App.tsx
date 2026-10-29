@@ -2,9 +2,26 @@ import { useEffect, useState, useSyncExternalStore } from 'react'
 import type { Report, Run, Policy } from './types'
 import s from './App.module.css'
 
-const names: Record<string, string> = {
-  small_only: 'Small only', super_only: 'Super only', ultra_only: 'Ultra only',
-  small_retry: 'Small + retry', small_ultra: 'Small + Ultra',
+const defaultNames: Record<string, string> = {
+  small_only: 'Nano only', super_only: 'Super only', ultra_only: 'Ultra only',
+  small_retry: 'Nano + retry', small_ultra: 'Nano + Ultra',
+}
+function policyNames(report: Report): Record<string, string> {
+  if (report.source === 'test_fixture') return defaultNames
+  const labels = {...defaultNames}
+  for (const run of report.runs) {
+    const models = run.policy.models.map(m => {
+      if (/nano/i.test(m.id)) return 'Nano'
+      if (/super/i.test(m.id)) return 'Super'
+      if (/ultra/i.test(m.id)) return 'Ultra'
+      if (/lightning/i.test(m.id)) return 'Lightning'
+      return m.id
+    })
+    labels[run.policy.id] = run.policy.id === 'small_retry'
+      ? models[0] + ' + retry'
+      : models.length === 1 ? models[0] + ' only' : models.join(' + ')
+  }
+  return labels
 }
 const dollars = (n: number | null) => n === null ? 'Incomplete' : '$' + n.toFixed(5)
 const percent = (n: number | null) => n === null ? 'Unavailable' : (n * 100).toFixed(1) + '%'
@@ -22,13 +39,18 @@ function Badge({children, bad = false}: {children: React.ReactNode; bad?: boolea
 }
 
 function Compare({report}: {report: Report}) {
+  const names = policyNames(report)
   const fixture = report.source === 'test_fixture'
   const measured = report.policies.filter(p => p.total_estimated_usd !== null)
   const maxCost = Math.max(...measured.map(p => p.total_estimated_usd || 0), 0.00001)
+  const validated = report.source === 'benchmark' && report.split === 'heldout' && report.recommendation.status === 'validated'
+  const chosen = report.policies.find(p => p.id === report.recommendation.selected)
   return <>
     <div className={s.intro}>
-      <div><h1>Compare the cost.<br />Inspect the outcome.</h1><p>Choose an execution policy from evidence, then run the configuration you export.</p></div>
-      <aside className={s.verdict}><span>Recommendation</span><h2>{fixture ? 'Awaiting model evidence' : report.recommendation.status === 'validated' ? names[report.recommendation.selected!] : 'Not validated'}</h2>
+      <div><h1>Compare the cost.<br />Inspect the outcome.</h1><p>Measure when a smaller model is enough and when escalation is worth it, then run the exact policy you export.</p></div>
+      <aside className={s.verdict}><span>Recommendation</span><h2>{fixture ? 'Awaiting model evidence' : validated ? names[report.recommendation.selected!] : 'Not validated'}</h2>
+        {validated && chosen && typeof chosen.savings_vs_ultra === 'number' && Number.isFinite(chosen.savings_vs_ultra) && <><p className={s.headline}>{percent(chosen.savings_vs_ultra)} less estimated spend than Ultra only</p>
+          <p>{chosen.successes} / {chosen.assigned} correct outcomes · {chosen.incorrect_accepted.length} accepted but incorrect</p></>}
         <p>{fixture ? 'This interactive example uses scripted tool calls. It demonstrates the workflow without claiming model quality or savings.' : report.recommendation.reason}</p>
         <a href={'#inspect/' + report.runs[0]?.id}>Inspect an execution</a>
       </aside>
@@ -59,12 +81,13 @@ function Compare({report}: {report: Report}) {
         <a href="/reports/illustration.json" download hidden={!fixture}>Download the labeled illustration</a>
       </section>
     </div>
-    {!fixture && <section className={s.panel}><h2>Measurement details</h2><div className={s.tableWrap}><table><thead><tr><th>Policy</th><th>Cost / success</th><th>Saving vs Ultra</th><th>Saving vs single</th><th>Escalation</th><th>Normalization</th><th>Incomplete</th></tr></thead>
+    {!fixture && <section className={s.panel}><h2>Measurement details</h2><div className={s.tableWrap}><table><thead><tr><th>Policy</th><th>Cost / success</th><th>Saving vs Ultra</th><th>Saving vs cheapest acceptable single model</th><th>Second attempt</th><th>Formatting cleaned</th><th>Missing cost data</th></tr></thead>
       <tbody>{report.policies.map(p => <tr key={p.id}><th>{names[p.id]}</th><td>{dollars(p.cost_per_success)}</td><td>{percent(p.savings_vs_ultra)}</td><td>{percent(p.savings_vs_single)}</td><td>{percent(p.escalation_rate)}</td><td>{percent(p.normalization_rate)}</td><td>{p.incomplete_measurements}</td></tr>)}</tbody></table></div></section>}
   </>
 }
 
 function Inspect({report, id}: {report: Report; id?: string}) {
+  const names = policyNames(report)
   const run = report.runs.find(r => r.id === id) || report.runs[0]
   if (!run) return <div className={s.panel}><h1>No executions yet</h1><p>Publish a report after completing the planned evaluation.</p></div>
   return <>
@@ -108,6 +131,7 @@ function Apply({report, id}: {report: Report; id?: string}) {
   const [copied, setCopied] = useState(false)
   const api = import.meta.env.VITE_API_URL as string | undefined
   const config = report.runs.find(r => r.policy.id === selected)?.policy
+  const names = policyNames(report)
   const fixture = report.source === 'test_fixture'
   const matchesLive = Boolean(config && catalog?.configurations?.[selected] && stable(config) === stable(catalog.configurations[selected]))
   useEffect(() => {
