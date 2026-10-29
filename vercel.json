@@ -8,5 +8,6 @@
       "maxDuration": 300
     }
   },
-  "framework": "fastapi"
+  "framework": "fastapi",
+  "buildCommand": "uv run --locked --no-dev python scripts/initialize_database.py"
 }

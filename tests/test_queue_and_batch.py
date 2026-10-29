@@ -124,3 +124,25 @@ def test_no_expiry_requires_confirmation_and_keeps_judge_allocation(tmp_path):
     assert db.remaining("evaluation") == 12.5
     assert db.remaining("judge") == 5.0
     assert db.remaining("public") == 2.5
+
+
+def test_vercel_uses_integration_branch_url(monkeypatch):
+    from agent_cost_down.api import hosted_database_url
+
+    monkeypatch.setenv("VERCEL", "1")
+    monkeypatch.setenv("DATABASE_URL", "postgresql://preview-test")
+    monkeypatch.setenv("ACD_DATABASE_URL", "postgresql://production-test")
+    assert hosted_database_url() == "postgresql://preview-test"
+    monkeypatch.setenv("DATABASE_URL", "postgresql://next-preview-test")
+    assert hosted_database_url() == "postgresql://next-preview-test"
+    monkeypatch.delenv("VERCEL")
+    assert hosted_database_url() == "postgresql://production-test"
+
+
+def test_branched_preview_cannot_spend_copied_credit(monkeypatch):
+    monkeypatch.setenv("VERCEL", "1")
+    monkeypatch.setenv("VERCEL_ENV", "preview")
+    monkeypatch.setenv("ACD_EXECUTION_MODE", "queue")
+    monkeypatch.setenv("ACD_LIVE_ENABLED", "true")
+    with pytest.raises(RuntimeError, match="cannot spend"):
+        create_app()

@@ -35,6 +35,14 @@ class Submission(Contract):
     policy_id: str
 
 
+def hosted_database_url():
+    # The integration injects a different DATABASE_URL for each preview branch.
+    # Prefer that value on Vercel over a manually copied, potentially stale URL.
+    if os.getenv("VERCEL") and os.getenv("DATABASE_URL"):
+        return os.environ["DATABASE_URL"]
+    return os.getenv("ACD_DATABASE_URL") or os.environ["DATABASE_URL"]
+
+
 def create_app(db=None, model_catalog=None, provider_factory=None, policies=None, queue_sender=None):
     live = os.getenv("ACD_LIVE_ENABLED", "false").lower() == "true"
     mode = os.getenv("ACD_EXECUTION_MODE", "local")
@@ -42,6 +50,8 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
         raise ValueError("Execution mode must be local or queue")
     if os.getenv("VERCEL") and live and mode != "queue":
         raise RuntimeError("Vercel live execution requires the private queue consumer")
+    if live and os.getenv("VERCEL_ENV") == "preview":
+        raise RuntimeError("Branched previews cannot spend inference credit; use the protected production ledger")
     root = Path(os.getenv("ACD_SUITE", "fixtures"))
     state = {"worker": None, "db": db, "models": model_catalog, "policies": policies}
 
@@ -114,7 +124,7 @@ def create_app(db=None, model_catalog=None, provider_factory=None, policies=None
         if live:
             if not os.getenv("ACD_CLIENT_SALT") or not os.getenv("ACD_JUDGE_CODE"):
                 raise RuntimeError("Live mode requires private quota salt and judge code")
-            state["db"] = state["db"] or Ledger(os.environ["ACD_DATABASE_URL"])
+            state["db"] = state["db"] or Ledger(hosted_database_url())
             state["models"] = state["models"] or ModelCatalog.model_validate_json(
                 os.getenv("ACD_MODELS_JSON")
                 or Path(os.getenv("ACD_MODELS", "private/models.json")).read_text()
