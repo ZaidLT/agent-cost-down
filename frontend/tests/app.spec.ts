@@ -15,6 +15,7 @@ test('configuration mismatch disables live execution while export stays availabl
 })
 test('protected API preserves static export and explains its status',async({page})=>{
  await setup(page,{privateService:true});await expect(page.getByText('Private service, recorded evidence is available',{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Start live sample'})).toBeDisabled();await expect(page.getByRole('button',{name:'Download policy.json'})).toBeEnabled()
+ await page.getByRole('link',{name:'Inspect a recorded execution'}).click();await expect(page.getByRole('heading',{name:'Execution evidence'})).toBeVisible();await expect(page.getByText('Recorded model execution',{exact:true})).toBeVisible()
 })
 test('cold start is visible and catalog/health must finish before enabling execution',async({page})=>{
  await setup(page);await page.route(api+'/healthz',async r=>{await new Promise(resolve=>setTimeout(resolve,500));await r.fulfill({json:{status:'ok',live_enabled:true}})})
