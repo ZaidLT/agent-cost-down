@@ -4,7 +4,11 @@ Compare an agent's execution policies, inspect independent outcomes, and apply t
 
 A Python tool agent runs a fictional store through five fixed policies built on NVIDIA Nemotron 3 models: Nano, Super, Ultra, Nano with one retry, and Nano followed by Ultra. Runtime checks decide whether another attempt is allowed. An independent evaluator scores the result afterward. Every attempt contributes to cost and latency.
 
-**Current status:** the complete v3 study contains 100 development and 300 held-out executions. Its preselected Nano-only policy did not validate. Diagnostic replay traced 33 of 52 held-out failures to a mismatch between advertised tool fields and runtime checks. The original report is bundled unchanged. A narrowly amended v4 controlled rerun is in progress, with the same tasks and selection rule. No v4 result is claimed yet. The repository and deployments remain protected pending publication approval.
+**Measured result:** Nano followed by Ultra achieved 57/60 correct outcomes, matching Ultra's observed success count at 74.5% lower estimated inference cost. Median latency was 18.9 seconds versus 5.45 seconds for Ultra. The complete v4 study contains 100 development and 300 evaluation executions. Its preselected cascade passed the declared criteria. Equal counts do not establish statistical equivalence or performance on other workloads.
+
+Controlled rerun on the same evaluation suite. These tasks and their v3 results were inspected before the v4 amendment. This is not fresh independent validation.
+
+The original v3 study remains unchanged: Nano-only failed its validation target, and replay identified 33 of 52 final evaluation failures attributable to the tool contract. V4 measures two declared repairs together: accepting harmless redundant fields and providing precise runtime feedback. Repository and deployments remain protected pending final publication approval.
 
 See [the v4 amendment](docs/v4-amendment.md) and [offline replay evidence](docs/v4-replay-evidence.json). V4 reuses an already-inspected evaluation suite and is not fresh independent validation.
 
@@ -170,4 +174,4 @@ MIT license.
 
 ## Inspect the original evidence
 
-The original development report, held-out report and freeze are preserved in `evidence/v3/`. Each report includes its raw run records. Run `uv run python scripts/replay_v3_contract.py` for the offline counterfactual replay. It uses no inference and does not rewrite model results. V4 evidence will be kept separately.
+The original development report, held-out report and freeze are preserved in `evidence/v3/`. Each report includes its raw run records. Run `uv run python scripts/replay_v3_contract.py` for the offline counterfactual replay. It uses no inference and does not rewrite model results. The complete v4 development report, evaluation report and freeze are preserved separately in `evidence/v4/`. The active report is `135c81cc2a5991c2`.

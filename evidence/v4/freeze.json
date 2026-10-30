@@ -1,0 +1,220 @@
+{
+  "experiment": {
+    "protocol_version": "4",
+    "validator_version": "2",
+    "amendment_commit": "aadb926391e307e3dcc901d35cdb5ad57c3e4ec7",
+    "interventions": [
+      "accept_redundant_fields",
+      "specific_runtime_feedback",
+      "correct_failure_labels"
+    ],
+    "original_report": "555720dd79a2c26c",
+    "reused_suite": true,
+    "evaluation_disclosure": "Controlled rerun on the same evaluation suite. These tasks and their v3 results were inspected before the v4 amendment. This is not fresh independent validation."
+  },
+  "frozen_commit": "56738e2924958d7df42d5f291209d1192e4d941d",
+  "schema_version": 1,
+  "created_at": "2026-10-29T21:44:38.342551+00:00",
+  "code_hash": "1fe8f95701d49551ceb42fd802440301e1d4f10892f6f1db464fff032799ffec",
+  "manifest_hash": "19e214b6e007682392a4a622876cc6d0cf01d6ecc1808cec79f1cc61d10b0e93",
+  "review_hash": "447e469c649bbb2c0b479494be3ff05a82de6760d4815f3db88f4ec1f6424951",
+  "catalog": {
+    "verified_at": "2026-10-29T11:00:34.360625+00:00",
+    "price_source": "Token Factory account Prices copied by user on 2026-10-29, eu-north1, USD per million tokens excluding taxes; cached discounts not used in conservative estimates",
+    "models": {
+      "small": {
+        "id": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+        "input_usd_per_million": 0.06,
+        "output_usd_per_million": 0.24,
+        "settings": {
+          "temperature": 0.0
+        }
+      },
+      "super": {
+        "id": "nvidia/nemotron-3-super-120b-a12b",
+        "input_usd_per_million": 0.3,
+        "output_usd_per_million": 0.9,
+        "settings": {
+          "temperature": 0.0
+        }
+      },
+      "ultra": {
+        "id": "nvidia/Nemotron-3-Ultra-550b-a55b",
+        "input_usd_per_million": 1.0,
+        "output_usd_per_million": 3.0,
+        "settings": {
+          "temperature": 0.0
+        }
+      }
+    },
+    "rpm": 100,
+    "tpm": 800000
+  },
+  "policies": {
+    "small_only": {
+      "schema_version": 1,
+      "id": "small_only",
+      "adapter": "orders",
+      "models": [
+        {
+          "id": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+          "input_usd_per_million": 0.06,
+          "output_usd_per_million": 0.24,
+          "settings": {
+            "temperature": 0.0
+          }
+        }
+      ],
+      "limits": {
+        "model_steps": 8,
+        "tool_calls": 20,
+        "deadline_seconds": 300,
+        "output_tokens": 4096,
+        "request_bytes": 32768,
+        "transport_retries": 2
+      },
+      "validator_version": "2",
+      "parser_version": "1",
+      "supporting_report": null,
+      "price_source": "Token Factory account Prices copied by user on 2026-10-29, eu-north1, USD per million tokens excluding taxes; cached discounts not used in conservative estimates",
+      "prices_verified_at": "2026-10-29T11:00:34.360625+00:00"
+    },
+    "super_only": {
+      "schema_version": 1,
+      "id": "super_only",
+      "adapter": "orders",
+      "models": [
+        {
+          "id": "nvidia/nemotron-3-super-120b-a12b",
+          "input_usd_per_million": 0.3,
+          "output_usd_per_million": 0.9,
+          "settings": {
+            "temperature": 0.0
+          }
+        }
+      ],
+      "limits": {
+        "model_steps": 8,
+        "tool_calls": 20,
+        "deadline_seconds": 300,
+        "output_tokens": 4096,
+        "request_bytes": 32768,
+        "transport_retries": 2
+      },
+      "validator_version": "2",
+      "parser_version": "1",
+      "supporting_report": null,
+      "price_source": "Token Factory account Prices copied by user on 2026-10-29, eu-north1, USD per million tokens excluding taxes; cached discounts not used in conservative estimates",
+      "prices_verified_at": "2026-10-29T11:00:34.360625+00:00"
+    },
+    "ultra_only": {
+      "schema_version": 1,
+      "id": "ultra_only",
+      "adapter": "orders",
+      "models": [
+        {
+          "id": "nvidia/Nemotron-3-Ultra-550b-a55b",
+          "input_usd_per_million": 1.0,
+          "output_usd_per_million": 3.0,
+          "settings": {
+            "temperature": 0.0
+          }
+        }
+      ],
+      "limits": {
+        "model_steps": 8,
+        "tool_calls": 20,
+        "deadline_seconds": 300,
+        "output_tokens": 4096,
+        "request_bytes": 32768,
+        "transport_retries": 2
+      },
+      "validator_version": "2",
+      "parser_version": "1",
+      "supporting_report": null,
+      "price_source": "Token Factory account Prices copied by user on 2026-10-29, eu-north1, USD per million tokens excluding taxes; cached discounts not used in conservative estimates",
+      "prices_verified_at": "2026-10-29T11:00:34.360625+00:00"
+    },
+    "small_retry": {
+      "schema_version": 1,
+      "id": "small_retry",
+      "adapter": "orders",
+      "models": [
+        {
+          "id": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+          "input_usd_per_million": 0.06,
+          "output_usd_per_million": 0.24,
+          "settings": {
+            "temperature": 0.0
+          }
+        },
+        {
+          "id": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+          "input_usd_per_million": 0.06,
+          "output_usd_per_million": 0.24,
+          "settings": {
+            "temperature": 0.0
+          }
+        }
+      ],
+      "limits": {
+        "model_steps": 8,
+        "tool_calls": 20,
+        "deadline_seconds": 300,
+        "output_tokens": 4096,
+        "request_bytes": 32768,
+        "transport_retries": 2
+      },
+      "validator_version": "2",
+      "parser_version": "1",
+      "supporting_report": null,
+      "price_source": "Token Factory account Prices copied by user on 2026-10-29, eu-north1, USD per million tokens excluding taxes; cached discounts not used in conservative estimates",
+      "prices_verified_at": "2026-10-29T11:00:34.360625+00:00"
+    },
+    "small_ultra": {
+      "schema_version": 1,
+      "id": "small_ultra",
+      "adapter": "orders",
+      "models": [
+        {
+          "id": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+          "input_usd_per_million": 0.06,
+          "output_usd_per_million": 0.24,
+          "settings": {
+            "temperature": 0.0
+          }
+        },
+        {
+          "id": "nvidia/Nemotron-3-Ultra-550b-a55b",
+          "input_usd_per_million": 1.0,
+          "output_usd_per_million": 3.0,
+          "settings": {
+            "temperature": 0.0
+          }
+        }
+      ],
+      "limits": {
+        "model_steps": 8,
+        "tool_calls": 20,
+        "deadline_seconds": 300,
+        "output_tokens": 4096,
+        "request_bytes": 32768,
+        "transport_retries": 2
+      },
+      "validator_version": "2",
+      "parser_version": "1",
+      "supporting_report": null,
+      "price_source": "Token Factory account Prices copied by user on 2026-10-29, eu-north1, USD per million tokens excluding taxes; cached discounts not used in conservative estimates",
+      "prices_verified_at": "2026-10-29T11:00:34.360625+00:00"
+    }
+  },
+  "development_report_hash": "9b3a552f14f953d6dfd9014010094cef81cb23bcfed2cc165d9d129c50eb08c8",
+  "selected": "small_ultra",
+  "concurrency": 1,
+  "pilot_hash": null,
+  "heldout_repetitions": 3,
+  "assigned_per_policy": 60,
+  "total_assigned": 300,
+  "forecast_usd": 1.21639815,
+  "forecast_seconds": 6752.4846275608
+}

@@ -54,4 +54,4 @@ Publish these drafts only after replacing every placeholder with verified eviden
 
 Controlled rerun on the same evaluation suite. These tasks and their v3 results were inspected before the v4 amendment. This is not fresh independent validation.
 
-The original report remains immutable. The controlled rerun measures redundant-field acceptance and precise runtime feedback together. Do not attribute gains to either intervention separately. Missing tool calls must not be described as malformed JSON. Final v4 numbers and qualification remain pending.
+The original report remains immutable. The controlled rerun measures redundant-field acceptance and precise runtime feedback together. Do not attribute gains to either intervention separately. Missing tool calls must not be described as malformed JSON. V4 is complete: the preselected Nano followed by Ultra policy achieved 57/60 correct, matching Ultra at 74.5% lower estimated cost and about 3.5 times the median latency. Qualification applies only to the declared criteria on this reused synthetic suite.

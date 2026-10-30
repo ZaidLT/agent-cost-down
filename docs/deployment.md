@@ -6,7 +6,7 @@ Use two Vercel Hobby projects from the same private repository. Never publish th
 
 Set the project root to `frontend`, framework Vite, build command `npm run build`, and output directory `dist`. Run `npm ci` for installation. Only `VITE_API_URL` belongs in frontend settings. Reports and fonts are bundled, so Compare and Inspect work without the API. Routes use URL hashes.
 
-Keep the scripted-example label until a genuine frozen report is exported. Keep the final explorer available through December 15. Vercel reads `frontend/vercel.json` for headers; Cloudflare `_headers` is not used by Vercel.
+Keep the scripted-example label until a genuine frozen report is exported. Keep the final explorer available through December 23. Vercel reads `frontend/vercel.json` for headers; Cloudflare `_headers` is not used by Vercel.
 
 ## Neon Free
 
@@ -48,3 +48,9 @@ Render preparation privacy: set ACD_PREPARATION_MODE=true and a strong private A
 
 
 Before enabling Render live execution, use the preparation-protected /v1/preparation/network endpoint to compare ordinary requests with forged X-Forwarded-For and CF-Connecting-IP headers. Render documents that all web-service traffic passes through Cloudflare; verify the Cloudflare client header is present and overwritten at that ingress on this deployed service. Only after that read-only probe succeeds set ACD_RENDER_PROXY_VERIFIED=true. Live admission otherwise fails closed. The diagnostic route disappears when preparation mode is disabled, and raw client addresses are not stored in the operational ledger. References: https://render.com/articles/how-render-handles-ddos-attacks and https://developers.cloudflare.com/fundamentals/reference/http-headers/ .
+
+## Current Render production handoff
+
+The Render image does not include the deployment setup scripts. For this deployment, execute the existing funding receipt receiver from the trusted local checkout against the verified Neon production endpoint, passing the production environment explicitly. Do not assume a Render redeploy imports the receipt. The source retirement and destination acceptance are already recorded privately; repeat receipt acceptance is idempotent and must never refill a pool.
+
+Render is the selected live backend for the frozen 300-second policies. The Vercel API project stays disabled. Preparation protection remains enabled until final publication approval. The approved proxy flag is configured; deployed behavior is checked before live submissions.
