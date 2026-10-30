@@ -12,8 +12,8 @@ Keep completed account details in ignored private/operations.json. The checked-i
 | Prices and limits | Dated provider source, account RPM/TPM, usage fields | Account rates and limits recorded; successful pilot responses included usage. Unknown charges retain reservations. |
 | Ultra latency | Six to eight development tasks, deadline and concurrency observations | Initial single pilot Ultra p95 4.72 seconds. Parallel Super failures preclude concurrency two; v4 complete at concurrency one; Ultra evaluation median 5.45 seconds. |
 | Nebius Jobs | Separate compute-credit grant and access within two-hour preflight | No configured access; local runner selected |
-| YouTube | Unlisted 10 to 15 second test upload and signed-out playback | Deferred at user request until application/results are ready. |
-| Hosting | Vercel Hobby website/API, Neon Free; Render Free only if pilot requires it | Protected deployments ready; isolated Neon branches verified; protected Render live verification in progress; public access remains disabled. |
+| YouTube | Final demonstration under three minutes, signed-out playback and narration review | [Final Unlisted video](https://youtu.be/ZEf3LGcnSx4): 2:59, signed-out playback and 1080p verified. Owner confirmed the corrected 47-cent baseline and unchanged narration; captions independently show 47 to 12 cents. |
+| Hosting | Vercel Hobby website, Render Free API and Neon Free ledger | Protected deployed integration passed, including live execution and reconciled spending. Public access awaits owner approval. |
 | Fixture review | Forty cases plus deep positive/negative review | Original human/AI-assisted review recorded. V3 amendment acknowledgement recorded; automated regression and consistency checks pass |
 | External quickstart | Actual completion or documented recruitment attempts | Pending |
 

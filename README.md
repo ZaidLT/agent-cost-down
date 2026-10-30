@@ -2,6 +2,8 @@
 
 Compare an agent's execution policies, inspect independent outcomes, and apply the exact configuration you export.
 
+[Explore the measured results](https://agent-cost-down-web.vercel.app) · [Watch the demonstration](https://youtu.be/ZEf3LGcnSx4)
+
 A Python tool agent runs a fictional store through five fixed policies built on NVIDIA Nemotron 3 models: Nano, Super, Ultra, Nano with one retry, and Nano followed by Ultra. Runtime checks decide whether another attempt is allowed. An independent evaluator scores the result afterward. Every attempt contributes to cost and latency.
 
 **Measured result:** Nano followed by Ultra achieved 57/60 correct outcomes, matching Ultra only under the frozen clarification rule, at 74.5% lower estimated inference cost. Median latency was 18.9 seconds versus 5.45 seconds for Ultra. The complete v4 study contains 100 development and 300 evaluation executions. Its preselected cascade passed the declared criteria. Equal counts do not establish statistical equivalence or performance on other workloads.
@@ -10,7 +12,7 @@ A Python tool agent runs a fictional store through five fixed policies built on 
 
 Controlled rerun on the same evaluation suite. These tasks and their v3 results were inspected before the v4 amendment. This is not fresh independent validation.
 
-The original v3 study remains unchanged: Nano-only failed its validation target, and replay identified 33 of 52 final evaluation failures attributable to the tool contract. V4 measures two declared repairs together: accepting harmless redundant fields and providing precise runtime feedback. Repository and deployments remain protected pending final publication approval.
+The original v3 study remains unchanged: Nano-only failed its validation target, and replay identified 33 of 52 final evaluation failures attributable to the tool contract. V4 measures two declared repairs together: accepting harmless redundant fields and providing precise runtime feedback.
 
 See [the v4 amendment](docs/v4-amendment.md) and [offline replay evidence](docs/v4-replay-evidence.json). V4 reuses an already-inspected evaluation suite and is not fresh independent validation.
 
@@ -51,8 +53,6 @@ npm run dev
 ```
 
 Open http://127.0.0.1:5173 to inspect the saved measured report. The offline smoke above separately creates a scripted illustration with no model calls or savings claim. Historical v3 policy exports require the original v3 runner commit d1f1b12443334d285f0266141deebf380dd154f3; the current runner intentionally requires validator version 2.
-
-The repository remains private during preparation; cloning requires authorized GitHub access. Publication requires the owner’s explicit approval.
 
 The repository includes 40 immutable generated tasks. The active suite is `fixtures-v3` (generator version 3); `fixtures` preserves version 2 and the original human review. To generate another version without replacing either:
 
