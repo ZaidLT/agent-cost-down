@@ -1,85 +1,108 @@
-import { test, expect } from '@playwright/test'
-
-// Keep scripted behavior tests independent of the report selected for release.
-test.beforeEach(async ({page}) => {
-  await page.route('**/reports/index.json', route => route.fulfill({json: {active: 'illustration.json', status: 'test_fixture'}}))
-})
-
-test('comparison, independent outcome, policy export, disconnected API', async ({page}) => {
-  await page.goto('/')
-  await expect(page.getByText('Scripted illustration. No real model results or cost savings have been measured.')).toBeVisible()
-  await expect(page.getByRole('heading', {name: 'Awaiting model evidence'})).toBeVisible()
-  await page.getByRole('link', {name: 'Inspect Nano + Ultra', exact: true}).click()
-  await expect(page.getByRole('heading', {name: 'Independent outcome'})).toBeVisible()
-  await expect(page.getByText('Restart from the original state')).toBeVisible()
-  await page.getByRole('link', {name: 'Apply this policy'}).click()
-  await expect(page.getByRole('button', {name: 'Start live sample'})).toBeDisabled()
-  await expect(page.getByText('Live execution is not connected. The report explorer works independently.')).toBeVisible()
-  const download = page.waitForEvent('download')
-  await page.getByRole('button', {name: 'Download policy.json'}).click()
-  expect((await download).suggestedFilename()).toBe('policy.json')
-})
-
-test('mobile layout and deep link survive refresh', async ({page}) => {
-  await page.setViewportSize({width: 390, height: 844})
-  await page.goto('/#inspect')
-  await expect(page.getByRole('heading', {name: 'Inspect an execution', exact: true})).toBeVisible()
-  await page.reload()
-  await expect(page.getByRole('heading', {name: 'Independent outcome'})).toBeVisible()
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy()
-  await page.screenshot({path: 'test-results/mobile.png', fullPage: true})
-})
-
-test('keyboard focus and report loading failure are usable', async ({page}) => {
-  await page.goto('/')
-  await page.keyboard.press('Tab')
-  await expect(page.getByRole('link', {name: 'Skip to content'})).toBeFocused()
-  await page.route('**/reports/index.json', route => route.abort())
-  await page.reload()
-  await expect(page.getByRole('heading', {name: 'The report could not be loaded.'})).toBeVisible()
-  await expect(page.getByRole('button', {name: 'Reload report'})).toBeVisible()
-})
-
-test('desktop evidence layout', async ({page}) => {
-  await page.setViewportSize({width: 1440, height: 1000})
-  await page.goto('/')
-  await expect(page.getByRole('heading', {name: 'Five policies, one workload'})).toBeVisible()
-  await page.screenshot({path: 'test-results/desktop.png', fullPage: true})
-})
-
-test('measured validated report shows the headline result', async ({page}) => {
-  const base = await (await page.request.get('/reports/illustration.json')).json()
-  const report = {...base, source: 'benchmark', split: 'heldout',
-    runs: base.runs.map((r: any) => ({...r, policy: {...r.policy, models: r.policy.models.map((m: any) => ({...m, id: m.id.replace('small', 'Nano')}))}})),
-    recommendation: {selected: 'small_ultra', status: 'validated', reason: 'Selected on development data and passed held-out gates.'},
-    policies: base.policies.map((p: Record<string, unknown>) => ({...p, total_estimated_usd: 0.01, savings_vs_ultra: p.id === 'small_ultra' ? 0.42 : null}))}
-  await page.route('**/reports/index.json', route => route.fulfill({json: {active: 'measured.json', status: 'recorded'}}))
-  await page.route('**/reports/measured.json', route => route.fulfill({json: report}))
-  await page.goto('/')
-  await expect(page.getByRole('heading', {name: 'Nano + Ultra'})).toBeVisible()
-  await expect(page.getByText('42.0% less estimated spend than Ultra only')).toBeVisible()
-})
-
-for (const scenario of ['missing savings', 'development only', 'not validated']) {
-  test(`headline is hidden for ${scenario}`, async ({page}) => {
-    const base = await (await page.request.get('/reports/illustration.json')).json()
-    const report = {...base, source: 'benchmark', split: scenario === 'development only' ? 'development' : 'heldout',
-      recommendation: {selected: 'small_ultra', status: scenario === 'not validated' ? 'not_validated' : 'validated', reason: 'Test scenario'},
-      policies: base.policies.map((p: Record<string, unknown>) => ({...p, savings_vs_ultra: scenario === 'missing savings' ? null : 0.42}))}
-    await page.route('**/reports/index.json', route => route.fulfill({json: {active: 'case.json'}}))
-    await page.route('**/reports/case.json', route => route.fulfill({json: report}))
-    await page.goto('/')
-    await expect(page.getByRole('heading', {name: 'Five policies, one workload'})).toBeVisible()
-    await expect(page.getByText(/less estimated spend than Ultra only/)).toHaveCount(0)
-  })
+import {test,expect,type Page} from '@playwright/test'
+import {readFile} from 'node:fs/promises'
+import {makeReport,scriptedReport} from './fixtures/reports'
+import {disclosure} from '../src/lib/evidence'
+import type {Report} from '../src/types'
+async function serve(page:Page, report:Report=makeReport()){
+ await page.route('**/reports/index.json',r=>r.fulfill({json:{active:'case.json',reports:[{file:'case.json',label:'Synthetic v4 test'},{file:'v3.json',label:'Synthetic v3 test'}]}}))
+ await page.route('**/reports/case.json',r=>r.fulfill({json:report}))
+ await page.route('**/reports/v3.json',r=>r.fulfill({json:makeReport('v3')}))
+ await page.route('**/healthz',r=>r.fulfill({status:503,json:{detail:'Disconnected test service'}}))
+ await page.route('**/v1/catalog',r=>r.fulfill({status:503,json:{detail:'Disconnected test service'}}))
 }
-
-test('substituted model identity remains visible', async ({page}) => {
-  const base = await (await page.request.get('/reports/illustration.json')).json()
-  const report = {...base, source: 'benchmark', runs: base.runs.map((r: any) => ({...r,
-    policy: {...r.policy, models: r.policy.models.map((m: any, i: number) => ({...m, id: r.policy.id.startsWith('small') && i === 0 ? 'nvidia/Nemotron-3_5-Lightning' : m.id}))}}))}
-  await page.route('**/reports/index.json', route => route.fulfill({json: {active: 'substitution.json'}}))
-  await page.route('**/reports/substitution.json', route => route.fulfill({json: report}))
-  await page.goto('/')
-  await expect(page.getByRole('link', {name: 'Inspect Lightning only', exact: true})).toBeVisible()
+test('v4 first screen presents cost, correctness, speed and immutable recommendation',async({page})=>{
+ await serve(page);await page.goto('/')
+ await expect(page.getByText('57/60 correct',{exact:true})).toBeVisible()
+ await expect(page.getByText('74.5%',{exact:true})).toBeVisible()
+ await expect(page.getByText('18.91 s',{exact:true}).first()).toBeVisible()
+ await expect(page.getByText(/Ultra: 5.45 s/)).toBeVisible()
+ await page.getByRole('button',{name:'Ultra Faster'}).click()
+ await expect(page.getByText('Declared criteria met',{exact:true})).toBeVisible()
+ await page.getByText('View accessible comparison table and measurement details').click()
+ await expect(page.getByRole('table')).toBeVisible()
+ await expect(page.getByRole('columnheader',{name:'p95 time'})).toBeVisible()
+})
+test('v3 and v4 selection, browser history and deep links survive refresh',async({page})=>{
+ const report=makeReport();await serve(page,report);await page.goto('/?report=v3.json#inspect/synthetic-run-0')
+ await expect(page.getByRole('heading',{name:'Execution evidence'})).toBeVisible()
+ await expect(page.getByText(disclosure,{exact:true})).toHaveCount(0)
+ await page.getByLabel('Experiment version').selectOption('case.json')
+ await expect(page).toHaveURL(/report=case.json#compare/)
+ await expect(page.getByText(disclosure,{exact:true})).toBeVisible()
+ await page.goBack();await expect(page.getByRole('heading',{name:'Execution evidence'})).toBeVisible()
+ await page.reload();await expect(page.getByRole('heading',{name:'Execution evidence'})).toBeVisible()
+})
+test('v4 disclosure is visible on every route, even with missing provenance disclosure',async({page})=>{
+ await serve(page);await page.goto('/')
+ for(const name of ['Compare','Inspect','Apply']){await page.getByRole('link',{name:new RegExp(name+'$')}).click();await expect(page.getByText(disclosure,{exact:true})).toBeVisible()}
+})
+test('scripted reports cannot claim model savings or enable inference',async({page})=>{
+ await serve(page,scriptedReport);await page.goto('/')
+ await expect(page.getByText('Scripted illustration. No real model results or cost savings have been measured.')).toBeVisible()
+ await expect(page.getByText('74.5%',{exact:true})).toHaveCount(0)
+ await page.getByRole('link',{name:/Apply$/}).click()
+ await expect(page.getByRole('button',{name:'Start live sample'})).toBeDisabled()
+})
+test('diagnosis categories link to the actual selected-report run',async({page})=>{
+ const report=makeReport();const failure=report.runs[0];failure.outcome!.success=false;failure.outcome!.checks.response=false;failure.verdict='ACCEPT'
+ await serve(page,report);await page.goto('/')
+ await page.getByText('Incorrect accepted outcome',{exact:true}).click()
+ await page.getByRole('link',{name:new RegExp(failure.task.id+', repeat')}).click()
+ await expect(page).toHaveURL(new RegExp('#inspect/'+failure.id+'$'))
+ await expect(page.getByRole('heading',{name:failure.task.request})).toBeVisible()
+ await expect(page.getByText('Incorrect outcome',{exact:true})).toBeVisible()
+ await expect(page.getByText('Accepted by runtime',{exact:true}).first()).toBeVisible()
+})
+test('readable state diffs, recovery timeline, raw evidence and export',async({page})=>{
+ const report=makeReport();const recovery=report.runs.find(r=>r.attempts.length>1 && r.outcome?.success)!
+ await serve(page,report);await page.goto('/#inspect/'+recovery.id)
+ await expect(page.getByRole('heading',{name:'What changed'})).toBeVisible()
+ await expect(page.getByText('Order line / sku')).toBeVisible()
+ await expect(page.getByText('Clean restart from the original state')).toBeVisible()
+ await expect(page.getByRole('heading',{name:'Independent outcome'})).toBeVisible()
+ await page.getByText('Original and final state JSON',{exact:true}).click()
+ await expect(page.locator('pre[aria-label="Original and final state JSON"]')).toBeVisible()
+ await page.getByRole('link',{name:'Apply this policy'}).click()
+ const download=page.waitForEvent('download');await page.getByRole('button',{name:'Download policy.json'}).click()
+ const path=await(await download).path();const data=JSON.parse(await readFile(path!,'utf8'))
+ expect(data).toEqual({...recovery.policy,supporting_report:report.id})
+})
+test('invalid execution deep links never silently show another run',async({page})=>{
+ await serve(page);await page.goto('/#inspect/not-a-real-run')
+ await expect(page.getByRole('heading',{name:'Execution not found'})).toBeVisible()
+ await expect(page.getByRole('heading',{name:'Independent outcome'})).toHaveCount(0)
+})
+test('report failure offers retry and keyboard skip link focuses main content',async({page})=>{
+ await serve(page);await page.goto('/');await page.keyboard.press('Tab')
+ await expect(page.getByRole('link',{name:'Skip to content'})).toBeFocused()
+ await page.keyboard.press('Enter');await expect(page.locator('main')).toBeFocused()
+ await page.route('**/reports/index.json',r=>r.abort());await page.reload()
+ await expect(page.getByRole('heading',{name:'The report could not be loaded.'})).toBeVisible()
+ await page.unroute('**/reports/index.json');await serve(page)
+ await page.getByRole('button',{name:'Reload report'}).click();await expect(page.getByRole('heading',{name:'The cost of getting it right.'})).toBeVisible()
+})
+for(const scenario of ['development','not validated','missing savings'])test('savings headline is gated for '+scenario,async({page})=>{
+ const report=makeReport();if(scenario==='development')report.split='development';if(scenario==='not validated')report.recommendation.status='not_validated';if(scenario==='missing savings')report.policies.forEach(p=>p.savings_vs_ultra=null)
+ await serve(page,report);await page.goto('/');await expect(page.getByRole('heading',{name:'Five policies. The same workload.'})).toBeVisible();await expect(page.getByText('74.5%',{exact:true})).toHaveCount(0)
+})
+for(const width of [360,390,768,1440])test('responsive screens and reduced motion at '+width,async({page})=>{
+ await page.setViewportSize({width,height:900});await page.emulateMedia({reducedMotion:'reduce'});await serve(page)
+ for(const route of ['compare','inspect','apply']){await page.goto('/#'+route);await expect(page.locator('h1')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();await page.screenshot({path:`test-results/synthetic-${route}-${width}.png`,fullPage:true})}
+ expect(await page.getByRole('button',{name:'Start live sample'}).evaluate(el=>getComputedStyle(el).transitionDuration)).toBe('0s')
+})
+test('actual substituted model identity stays visible',async({page})=>{
+ const report=makeReport();report.runs.forEach(r=>{if(r.policy.id.startsWith('small'))r.policy.models[0].id='nvidia/Nemotron-3_5-Lightning'})
+ await serve(page,report);await page.goto('/');await expect(page.getByText('Lightning',{exact:true}).first()).toBeVisible()
+})
+test('long identifiers and requests remain usable on a narrow screen',async({page})=>{
+ const report=makeReport();report.runs[0].task.request='Synthetic stress test: '+ 'VeryLongUnbrokenRequest'.repeat(30);report.runs[0].policy.models[0].id='SyntheticModel'.repeat(30)
+ await page.setViewportSize({width:360,height:844});await serve(page,report)
+ for(const route of ['compare','inspect/'+report.runs[0].id,'apply/small_only']){await page.goto('/#'+route);await expect(page.locator('h1')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),route).toBeTruthy()}
+})
+test('the published report index loads without a preview overlay',async({page})=>{
+ const index=await(await page.request.get('/reports/index.json')).json()
+ const report=await(await page.request.get('/reports/'+index.active)).json()
+ await page.goto('/')
+ await expect(page.getByRole('heading',{name:'The cost of getting it right.'})).toBeVisible()
+ await expect(page.getByText('Report '+report.id,{exact:true})).toBeVisible()
 })
