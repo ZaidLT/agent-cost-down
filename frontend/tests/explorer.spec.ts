@@ -19,7 +19,7 @@ test('v4 first screen presents cost, correctness, speed and immutable recommenda
  await page.getByRole('button',{name:'Ultra Faster'}).click()
  await expect(page.getByText('Recorded result',{exact:true})).toBeVisible()
  await page.getByText('View accessible comparison table and measurement details').click()
- await expect(page.getByRole('table')).toBeVisible()
+ await expect(page.getByRole('region',{name:'Policy comparison table'}).getByRole('table')).toBeVisible()
  await expect(page.getByRole('columnheader',{name:'p95 time'})).toBeVisible()
 })
 test('v3 and v4 selection, browser history and deep links survive refresh',async({page})=>{
@@ -79,7 +79,7 @@ test('report failure offers retry and keyboard skip link focuses main content',a
  await page.route('**/reports/index.json',r=>r.abort());await page.reload()
  await expect(page.getByRole('heading',{name:'The report could not be loaded.'})).toBeVisible()
  await page.unroute('**/reports/index.json');await serve(page)
- await page.getByRole('button',{name:'Reload report'}).click();await expect(page.getByRole('heading',{name:'The cost of getting it right.'})).toBeVisible()
+ await page.getByRole('button',{name:'Reload report'}).click();await expect(page.getByRole('heading',{level:1})).toBeVisible()
 })
 for(const scenario of ['development','not validated','missing savings'])test('savings headline is gated for '+scenario,async({page})=>{
  const report=makeReport();if(scenario==='development')report.split='development';if(scenario==='not validated')report.recommendation.status='not_validated';if(scenario==='missing savings')report.policies.forEach(p=>p.savings_vs_ultra=null)
@@ -103,13 +103,16 @@ test('the published report index loads without a preview overlay',async({page})=
  const index=await(await page.request.get('/reports/index.json')).json()
  const report=await(await page.request.get('/reports/'+index.active)).json()
  await page.goto('/')
- await expect(page.getByRole('heading',{name:'The cost of getting it right.'})).toBeVisible()
+ await expect(page.getByRole('heading',{level:1})).toBeVisible()
  await expect(page.getByText('Report '+report.id,{exact:true})).toBeVisible()
 })
 
 test('real report makes scoring sensitivity prominent and compares original failures',async({page})=>{
  await page.goto('/');await expect(page.getByText('Scoring-sensitive result.',{exact:true})).toBeVisible()
- await expect(page.getByText(/Accepting extra clarification fields gives Ultra 60\/60 and Nano/)).toBeVisible()
+ const summary=page.getByRole('region',{name:'Scoring sensitivity summary'})
+ await expect(summary.getByRole('row',{name:'Pre-declared 57/60 57/60'})).toBeVisible()
+ await expect(summary.getByRole('row',{name:'Broader clarification 60/60 57/60'})).toBeVisible()
+ await expect(page.getByRole('heading',{level:1})).toContainText('74.5% lower estimated AI cost than Ultra.')
  await page.getByRole('link',{name:'See the scoring sensitivity'}).click()
  await expect(page.getByRole('heading',{name:'How clarification scoring changes the comparison'})).toBeInViewport()
  await expect(page.getByText(/post-hoc sensitivity analysis, not new model runs/)).toBeVisible()

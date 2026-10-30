@@ -301,3 +301,30 @@
 .scoringDetail h3{font-size:17px;line-height:1.5}
 .diagnosisComparison{min-width:0}.diagnosisComparison th,.diagnosisComparison td{font-size:13px;padding:12px 10px}.diagnosisComparison td{min-width:70px;font-variant-numeric:tabular-nums}.diagnosisComparison a{text-underline-offset:3px}
 .diagnosisComparison caption{max-width:95ch;text-align:left;padding:10px 0;color:var(--muted)}
+
+/* Let the measured value and its qualification share the first screen. */
+.valueHero{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:start;gap:64px;padding:22px 0 36px;border-top:0;margin-bottom:32px}
+.valueHeadline{font-size:clamp(30px,3.1vw,44px);line-height:1.13;letter-spacing:-.045em;max-width:17ch;margin:0 0 20px}
+.valueHeadline>span{display:block;font-size:clamp(76px,7.7vw,108px);line-height:1.05;color:var(--cyan);letter-spacing:-.065em;margin-bottom:10px}
+.resultMain .valuePromise{font-size:17px;line-height:1.6;max-width:45ch;margin-bottom:28px}
+.resultMain .heroPolicy{font-size:22px;margin-bottom:8px;letter-spacing:-.02em}
+.heroPolicy>span{display:inline-block;font-size:11px;font-weight:400;color:var(--muted);letter-spacing:0;margin-left:10px}
+.heroEvidence{min-width:0;display:grid;gap:24px}
+.scoringCard{min-width:0;padding:24px;background:#1c1d1d;border:1px solid #414343;border-radius:8px;border-top:2px solid var(--amber)}
+.scoringCard h2{font-size:20px;margin:0 0 6px}
+.scoringCard table{width:100%;table-layout:fixed}
+.scoringCard caption{text-align:left;font-size:12px;color:var(--muted);padding-bottom:16px}
+.scoringCard th,.scoringCard td{padding:13px 6px;font-size:13px;text-align:right;white-space:normal}
+.scoringCard th:first-child{width:42%;text-align:left;padding-left:0}
+.scoringCard td{font-size:21px;font-variant-numeric:tabular-nums;color:var(--text)}
+.scoringCard tbody tr:last-child{background:#29251d}
+.scoringCard p{font-size:12px;line-height:1.65;margin:16px 0 12px;color:#d4c5a5}
+.scoringCard>a{display:inline-flex;align-items:center;gap:8px;font-size:13px;min-height:28px;text-underline-offset:4px}
+.heroEvidence .resultMetrics{padding:0;gap:24px;border-top:0}
+.heroEvidence .resultMetrics strong{font-size:30px}
+.applyAction{display:inline-flex;align-items:center;justify-content:center;gap:14px;min-height:44px;padding:10px 16px;border:1px solid var(--cyan);border-radius:4px;color:var(--cyan);text-decoration:none;font-size:14px}
+.applyAction:hover{background:#1a3032}
+.resultMain .recoverySummary{font-size:12px;color:var(--muted);margin:18px 0 0}
+@media(max-width:1150px){.valueHero{gap:32px}.scoringCard{padding:20px}}
+@media(max-width:900px){.valueHero{grid-template-columns:1fr;gap:28px;padding-top:8px}.valueHeadline{max-width:24ch}.valueHeadline>span{font-size:84px}.heroEvidence{max-width:680px}.resultMain .valuePromise{max-width:60ch}}
+@media(max-width:640px){.valueHero{padding:4px 0 28px}.valueHeadline{font-size:30px;max-width:19ch}.valueHeadline>span{font-size:76px}.resultMain .valuePromise{font-size:15px;margin-bottom:22px}.resultMain .heroPolicy{font-size:22px}.scoringCard{padding:20px 14px}.scoringCard th{font-size:11px}.scoringCard td{font-size:20px}.heroEvidence .resultMetrics strong{font-size:27px}.applyAction{flex-basis:100%;justify-content:space-between}.actions .textAction{margin-top:6px}}
