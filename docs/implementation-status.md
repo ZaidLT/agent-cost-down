@@ -15,11 +15,11 @@ The suite contains twenty evaluation tasks representing seven distinct scenarios
 - V4 aggregates reproduced; v3 and v4 evidence preserved separately; v4 is the static explorer default.
 - Production Neon identity verified. Exactly $5 judge and $2.50 public funding transferred once; those source allocations are retired locally. Production development and evaluation allowances are zero.
 - Render Free protected live deployment passed both approved live checks with the frozen policies. Both outcomes were correct; duplicate submissions reused the same run IDs. Total estimated release-check spending was $0.00168546. Vercel website remains protected. No public release or submission has occurred.
-- Prior verification: 102 backend tests passed, one PostgreSQL test skipped locally; CI passed PostgreSQL integration, schema checks and Docker build. Ten browser tests passed before frontend redesign. Integrated release checks remain required.
-- Frontend redesign is assigned to a separate session. Backend execution remains frozen.
+- Prior verification: 102 backend tests passed, one PostgreSQL test skipped locally; CI passed PostgreSQL integration, schema checks and Docker build. The integrated frontend production build and all 35 browser/evidence tests pass, including exact real-report visual checks at 390, 768 and 1440 pixels. Diagnosis links were independently replayed and the production bundle passed the saved-credential scan.
+- Graphite-and-cyan frontend redesign integrated from a3d82ef, with a direct recorded fallback link added in f6c7b83. Backend execution remains frozen.
 
 ## Outstanding gates
 
-Frontend integration; final browser and privacy checks; final video and YouTube upload; Devpost and sponsor feedback review; explicit publication approval; signed-out link verification and submission confirmation. External quickstart participation is not yet established.
+Final deployed-interface verification; final video and YouTube upload; Devpost and sponsor feedback review; explicit publication approval; signed-out link verification and submission confirmation. External quickstart participation is not yet established.
 
 Submission target: October 30 at 18:00 Istanbul. Official deadline: 20:00 Istanbul. Current rules require access through December 23, 2026. Routine monitoring must not invoke inference.
