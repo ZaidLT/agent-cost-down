@@ -15,7 +15,7 @@ for(const width of [390,768,1440])test('real v4 visual review at '+width,async({
  for(const [screen,route] of [['compare','compare'],['inspect','inspect/'+recovery.id],['apply','apply/small_ultra']]){
   await page.goto('/#'+route);await expect(page.locator('h1')).toBeVisible();await page.evaluate(()=>document.fonts.ready)
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy()
-  if(width===1440 && screen==='compare'){const chart=await page.getByRole('img',{name:/Five-policy comparison/}).boundingBox();expect(chart!.y+chart!.height).toBeLessThanOrEqual(900)}
+  if(width===1440 && screen==='compare'){await expect(page.getByText('Scoring-sensitive result.',{exact:true})).toBeInViewport();await expect(page.getByText('74.5%',{exact:true})).toBeInViewport()}
   await page.screenshot({path:`test-results/screenshots/${screen}-${width}.png`,fullPage:true})
   await page.screenshot({path:`test-results/screenshots/${screen}-${width}-viewport.png`})
  }

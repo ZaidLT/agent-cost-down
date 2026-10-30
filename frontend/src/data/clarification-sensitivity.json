@@ -1,0 +1,228 @@
+{
+  "source": "post_hoc_sensitivity_analysis",
+  "model_calls": 0,
+  "report_id": "135c81cc2a5991c2",
+  "report_sha256": "eaf8080ade3336284994cc97c29b027f8aecf2107034de03be7c58e9e78690dd",
+  "frozen_scores_unchanged": true,
+  "rule": "For Please update my order. clarifications only, accept any structured missing-field set containing request, provided every other frozen outcome check passes.",
+  "limitations": "This is an alternative scoring rule inspected after results, not new inference, human semantic grading, a replacement recommendation, or independent validation. Free-text questions are not rescored.",
+  "policies": {
+    "small_only": {
+      "assigned": 60,
+      "frozen_successes": 52,
+      "broader_successes": 53,
+      "changed_run_ids": [
+        "272d0374-d09f-462d-9234-1e0210e3dda0"
+      ]
+    },
+    "super_only": {
+      "assigned": 60,
+      "frozen_successes": 52,
+      "broader_successes": 52,
+      "changed_run_ids": []
+    },
+    "ultra_only": {
+      "assigned": 60,
+      "frozen_successes": 57,
+      "broader_successes": 60,
+      "changed_run_ids": [
+        "8aea4091-a428-4943-b449-4ff54266d3e3",
+        "9991e851-d7ba-4e10-85c4-a8091755f996",
+        "2ea587ae-fe90-4e50-baa9-555e82a9a401"
+      ]
+    },
+    "small_retry": {
+      "assigned": 60,
+      "frozen_successes": 55,
+      "broader_successes": 55,
+      "changed_run_ids": []
+    },
+    "small_ultra": {
+      "assigned": 60,
+      "frozen_successes": 57,
+      "broader_successes": 57,
+      "changed_run_ids": []
+    }
+  },
+  "clarification_failures": [
+    {
+      "run_id": "272d0374-d09f-462d-9234-1e0210e3dda0",
+      "task_id": "ambiguity-heldout-3",
+      "policy_id": "small_only",
+      "missing": [
+        "order_id",
+        "variant",
+        "quantity",
+        "request"
+      ],
+      "question": "Could you please tell me which order you would like to update (e.g., O1420) and what specific change you would like to make (such as modifying the quantity, returning the item, or replacing a variant)?",
+      "broader_rule_pass": true
+    },
+    {
+      "run_id": "16707b99-fd0f-40a1-af5b-8f0fe9766420",
+      "task_id": "ambiguity-heldout-3",
+      "policy_id": "small_only",
+      "missing": [
+        "order_id"
+      ],
+      "question": "Which order would you like to update? Please provide the order ID (e.g., O1420).",
+      "broader_rule_pass": false
+    },
+    {
+      "run_id": "6f695735-6fa9-4125-8eb5-9ab0a3e0d147",
+      "task_id": "ambiguity-heldout-1",
+      "policy_id": "super_only",
+      "missing": [
+        "order_id",
+        "variant",
+        "quantity"
+      ],
+      "question": "Which order would you like to update (O1414 or O1414B)? For which item (SKU/variant) and what new quantity?",
+      "broader_rule_pass": false
+    },
+    {
+      "run_id": "e6839c3b-1e7d-4982-a6b7-f82b8453465d",
+      "task_id": "ambiguity-heldout-1",
+      "policy_id": "super_only",
+      "missing": [
+        "order_id",
+        "variant",
+        "quantity"
+      ],
+      "question": "Which order would you like to update (O1414 or O1414B)? For which item (SKU/variant) and what new quantity?",
+      "broader_rule_pass": false
+    },
+    {
+      "run_id": "a0c011ef-8d87-457a-9927-0ba6dbd25770",
+      "task_id": "ambiguity-heldout-1",
+      "policy_id": "super_only",
+      "missing": [
+        "order_id",
+        "variant",
+        "quantity"
+      ],
+      "question": "Which order would you like to update, and what change (e.g., add/remove items, change quantity) do you need?",
+      "broader_rule_pass": false
+    },
+    {
+      "run_id": "bdce433e-0e98-415e-94ad-a116e314c3b8",
+      "task_id": "ambiguity-heldout-3",
+      "policy_id": "super_only",
+      "missing": [
+        "order_id",
+        "variant",
+        "quantity"
+      ],
+      "question": "Which order would you like to update, which item (SKU/variant), and what new quantity?",
+      "broader_rule_pass": false
+    },
+    {
+      "run_id": "211d09d3-84f1-42c0-9e3c-605c29b5bf7f",
+      "task_id": "ambiguity-heldout-3",
+      "policy_id": "super_only",
+      "missing": [
+        "order_id"
+      ],
+      "question": "Which order would you like to update? Your open orders are O1420 (created 2026-10-20) and delivered O1420B.",
+      "broader_rule_pass": false
+    },
+    {
+      "run_id": "a8f46952-a9fc-44c0-b934-95206d0d31f4",
+      "task_id": "ambiguity-heldout-3",
+      "policy_id": "super_only",
+      "missing": [
+        "order_id",
+        "variant",
+        "quantity"
+      ],
+      "question": "Which order would you like to update (O1420 or O1420B)? For which item (SKU/variant) and what new quantity?",
+      "broader_rule_pass": false
+    },
+    {
+      "run_id": "8aea4091-a428-4943-b449-4ff54266d3e3",
+      "task_id": "ambiguity-heldout-1",
+      "policy_id": "ultra_only",
+      "missing": [
+        "variant",
+        "quantity",
+        "request"
+      ],
+      "question": "Your open order O1414 has two items: 2\u00d7 BLUE-M (line L1414) and 1\u00d7 MUG (line L1414B). What would you like to change? Please specify which item (SKU or line ID), the new quantity, and whether you want to adjust quantity, replace with a different product, or return some units.",
+      "broader_rule_pass": true
+    },
+    {
+      "run_id": "9991e851-d7ba-4e10-85c4-a8091755f996",
+      "task_id": "ambiguity-heldout-1",
+      "policy_id": "ultra_only",
+      "missing": [
+        "request",
+        "variant",
+        "quantity"
+      ],
+      "question": "I see your open order O1414 with two items: 2\u00d7 BLUE-M and 1\u00d7 MUG. What would you like to update? Please specify which item(s) and the new quantity, or if you'd like to add a different product.",
+      "broader_rule_pass": true
+    },
+    {
+      "run_id": "2ea587ae-fe90-4e50-baa9-555e82a9a401",
+      "task_id": "ambiguity-heldout-1",
+      "policy_id": "ultra_only",
+      "missing": [
+        "variant",
+        "quantity",
+        "request"
+      ],
+      "question": "Your open order O1414 has two items: 2\u00d7 BLUE-M (line L1414) and 1\u00d7 MUG (line L1414B). What would you like to change? Please specify which line, the new quantity (or SKU to replace with), and whether you want to adjust quantity, swap the product, or return some items.",
+      "broader_rule_pass": true
+    },
+    {
+      "run_id": "97e24da4-c217-4e45-ad7e-fa158c7efb57",
+      "task_id": "ambiguity-heldout-1",
+      "policy_id": "small_retry",
+      "missing": [
+        "order_id"
+      ],
+      "question": "Could you please provide the order ID of the order you would like to update?",
+      "broader_rule_pass": false
+    },
+    {
+      "run_id": "dc586e98-5833-4642-b56e-235d2339717b",
+      "task_id": "ambiguity-heldout-1",
+      "policy_id": "small_retry",
+      "missing": [
+        "order_id"
+      ],
+      "question": "Which order would you like to update? Please provide the order ID.",
+      "broader_rule_pass": false
+    },
+    {
+      "run_id": "a590c475-616e-475b-9d78-95e9ed4eb144",
+      "task_id": "ambiguity-heldout-3",
+      "policy_id": "small_retry",
+      "missing": [
+        "order_id"
+      ],
+      "question": "Could you please provide the order ID you would like to update?",
+      "broader_rule_pass": false
+    },
+    {
+      "run_id": "6bdc4887-286d-42a4-979b-bf62f2f64802",
+      "task_id": "ambiguity-heldout-1",
+      "policy_id": "small_ultra",
+      "missing": [
+        "order_id"
+      ],
+      "question": "Could you please specify which order you would like to update (e.g., O1414)?",
+      "broader_rule_pass": false
+    },
+    {
+      "run_id": "7ca2a899-02a1-4baa-877e-4f1d7504de3d",
+      "task_id": "ambiguity-heldout-1",
+      "policy_id": "small_ultra",
+      "missing": [
+        "order_id"
+      ],
+      "question": "Which order would you like to update? Please provide the order ID (e.g., O1414).",
+      "broader_rule_pass": false
+    }
+  ]
+}

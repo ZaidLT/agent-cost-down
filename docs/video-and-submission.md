@@ -54,4 +54,9 @@ Publish these drafts only after replacing every placeholder with verified eviden
 
 Controlled rerun on the same evaluation suite. These tasks and their v3 results were inspected before the v4 amendment. This is not fresh independent validation.
 
-The original report remains immutable. The controlled rerun measures redundant-field acceptance and precise runtime feedback together. Do not attribute gains to either intervention separately. Missing tool calls must not be described as malformed JSON. V4 is complete: the preselected Nano followed by Ultra policy achieved 57/60 correct, matching Ultra at 74.5% lower estimated cost and about 3.5 times the median latency. Qualification applies only to the declared criteria on this reused synthetic suite.
+The original report remains immutable. The controlled rerun measures redundant-field acceptance and precise runtime feedback together. Do not attribute gains to either intervention separately. Missing tool calls must not be described as malformed JSON. V4 is complete: the preselected Nano followed by Ultra policy achieved 57/60 correct, matching Ultra under the frozen clarification rule at 74.5% lower estimated cost and about 3.5 times the median latency. Qualification applies only to the declared criteria on this reused synthetic suite.
+
+
+**Scoring sensitivity:** all three Ultra failures are clarifications containing `request` plus `variant` and `quantity`. The frozen rule accepts only `[request]` or `[request, order_id]`. Under a broader rule that accepts any structured list containing `request`, while preserving every other outcome check, Ultra scores **60/60** and Nano followed by Ultra stays at **57/60**. This post-hoc analysis changes neither the frozen report nor the recommendation. The cost reduction remains 74.5%; it is not an unqualified quality-parity claim. The structured field list is scored, not the free-text question.
+
+Say the rule-sensitive comparison aloud in the video. Do not imply equivalent quality from the frozen success counts.

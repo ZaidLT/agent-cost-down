@@ -294,3 +294,10 @@
  .chartRow{min-height:52px}
  .numeric small{display:none}
 }
+
+.scoringNote{padding:12px 14px;border-left:2px solid #c7ad68;background:#201e17;font-size:13px!important;line-height:1.65;max-width:75ch;color:#e0d7bf}
+.scoringNote a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.scoringDetail{border-top:1px solid #555;margin-top:22px;padding-top:18px;scroll-margin-top:24px}
+.scoringDetail h3{font-size:17px;line-height:1.5}
+.diagnosisComparison{margin-bottom:24px}.diagnosisComparison th,.diagnosisComparison td{font-size:13px;padding:12px 10px}.diagnosisComparison td{min-width:70px;font-variant-numeric:tabular-nums}.diagnosisComparison a{text-underline-offset:3px}
+.diagnosisComparison caption{max-width:95ch;text-align:left;padding:10px 0;color:var(--muted)}

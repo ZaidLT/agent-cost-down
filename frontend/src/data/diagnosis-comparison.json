@@ -1,0 +1,125 @@
+{
+  "source": "post_hoc_diagnostic_summary",
+  "model_calls": 0,
+  "reports": {
+    "555720dd79a2c26c": {
+      "version": "v3",
+      "file": "555720dd79a2c26c.json",
+      "sha256": "e01b2dc23014b0b23724564843610a9e224e8e7d1171d293e4191a8989ccfc79",
+      "total_final_failures": 52,
+      "categories": {
+        "clarification_extra_fields": [
+          "5c6e8a2e-7282-4382-9843-8df346fa8cad",
+          "5510928b-66b2-4c87-b489-b1f1bddc9ede",
+          "c376dd43-99a2-42f6-ad1f-3e5aa1666c8c",
+          "12fd6a50-e43a-4d00-a863-55c3034dd65c",
+          "64355d3f-86ea-4adc-86d7-556f9fe23cf8"
+        ],
+        "clarification_missing_request": [
+          "c5475d93-3b3f-4924-b997-928f5e57fd07",
+          "acf6b668-e09d-4ded-a56c-3983754637a1",
+          "c0de7ad6-9659-4afa-b090-e69550619d9f",
+          "1621ffb0-d2e8-4f2a-aa9b-365a99fb805d",
+          "f733524e-8724-4a28-8380-7145275c39f1",
+          "4eda9ed7-c976-4281-bfd5-a326b22a20b6"
+        ],
+        "contract": [
+          "7aa59992-e3d5-4f38-bfd8-a9c92d736b56",
+          "9ec342b3-0576-4524-8e30-66d5071a7eac",
+          "0a1092a4-7454-4653-88f0-74d191cfa138",
+          "ab84da4c-58de-4847-a145-1c530dfdaaaa",
+          "3ec85d90-af34-4b05-914a-448781e53b54",
+          "b8540e91-d8bf-40a3-a19a-bfbe579789b5",
+          "5d0046f9-b4de-4d66-b469-e7d511ef0caf",
+          "027633a9-db43-4606-90f3-24a6e26c9679",
+          "b39b0174-68fa-4379-9670-30bb350d9cdb",
+          "f9586a22-30a3-4364-8bdc-c991a5506b3d",
+          "8f95c7ab-62bf-42b7-a7bc-aff572d94c5c",
+          "12003782-fb1d-4495-972e-6a1ed78b0e6b",
+          "ce953375-a9e1-4a28-82cc-54ab6fa6834b",
+          "afc76f9f-19f1-4606-b8ee-ce0f7f97f4cf",
+          "9b6a6e01-9777-4fb5-acd4-8df0802c7a42",
+          "b822eef7-4554-4368-8f9d-a52231f31c80",
+          "552044ba-900c-4d22-ae73-005d9f6f2494",
+          "836a752d-6e90-4725-9a7f-dda31314e35b",
+          "6f5085ce-6b23-420e-8af0-09267d863f21",
+          "4a4f7b80-5430-490d-890a-4e10aa651cb0",
+          "730c9fdf-2ffc-420c-acc1-03ae8acd3679",
+          "cfd87062-7c42-421f-8325-64896b151fe1",
+          "fd12885e-2aee-4ad1-8a62-c7e9f868cf75",
+          "0596d5cd-e03a-4b30-aaee-afb2096d70c9",
+          "511e3c49-ef17-422a-b3c2-04b3ea6c4898",
+          "b52d187a-413b-4070-95e2-524096f3e2d4",
+          "6e662649-a73c-44b0-b6d8-17bce76934d1",
+          "3d0cba54-e0ff-44f1-a4e7-2615221de976",
+          "968609ee-792b-4217-a700-3b0cd5dfd007",
+          "d28fdacb-2713-4b6b-9fe1-9efc2d424a32",
+          "ed524560-541f-4aab-9fbd-8e7cecd53cb0",
+          "4e343c05-73e5-4123-9a5d-52b3826224a7",
+          "27f3b259-2163-4af0-b3da-e5ee5a036685"
+        ],
+        "incorrect": [
+          "16ad6b39-3ad6-4081-94be-a71fbe6baa6b",
+          "31350b47-b3e2-419b-a91c-e5da534fdec0",
+          "293bb2ae-4a53-4e51-b702-fbe7a637ef8a"
+        ],
+        "schema": [
+          "d7c79201-2aad-477e-a1ab-72d0daf4fe44"
+        ],
+        "missing": [
+          "bc2eb492-6dfd-4901-9697-5798d1221343",
+          "48c31eb5-79e4-481b-aa22-710c80a7dec0",
+          "aeefcf53-7852-44c3-b90f-df3faa1f88ee"
+        ],
+        "provider": [
+          "d668713e-1814-40d0-a366-a8d4cbbf9d3b"
+        ]
+      }
+    },
+    "135c81cc2a5991c2": {
+      "version": "v4",
+      "file": "135c81cc2a5991c2.json",
+      "sha256": "eaf8080ade3336284994cc97c29b027f8aecf2107034de03be7c58e9e78690dd",
+      "total_final_failures": 27,
+      "categories": {
+        "clarification_missing_request": [
+          "97e24da4-c217-4e45-ad7e-fa158c7efb57",
+          "6bdc4887-286d-42a4-979b-bf62f2f64802",
+          "6f695735-6fa9-4125-8eb5-9ab0a3e0d147",
+          "dc586e98-5833-4642-b56e-235d2339717b",
+          "e6839c3b-1e7d-4982-a6b7-f82b8453465d",
+          "7ca2a899-02a1-4baa-877e-4f1d7504de3d",
+          "a0c011ef-8d87-457a-9927-0ba6dbd25770",
+          "bdce433e-0e98-415e-94ad-a116e314c3b8",
+          "211d09d3-84f1-42c0-9e3c-605c29b5bf7f",
+          "16707b99-fd0f-40a1-af5b-8f0fe9766420",
+          "a590c475-616e-475b-9d78-95e9ed4eb144",
+          "a8f46952-a9fc-44c0-b934-95206d0d31f4"
+        ],
+        "clarification_extra_fields": [
+          "8aea4091-a428-4943-b449-4ff54266d3e3",
+          "9991e851-d7ba-4e10-85c4-a8091755f996",
+          "2ea587ae-fe90-4e50-baa9-555e82a9a401",
+          "272d0374-d09f-462d-9234-1e0210e3dda0"
+        ],
+        "missing": [
+          "c47312ea-fa77-4c03-bb06-7e4dc1caef30",
+          "a4237510-744d-408e-9ea3-e5e78b71a6e1",
+          "14935d11-d590-4ba4-9ac9-19ed79be773c",
+          "a63e8eba-e675-49c6-b658-29d5bd882714",
+          "7d8dd222-8c45-400b-8208-e8f3f4f69ade",
+          "fb1f78ef-27c9-4bcf-b439-53d307bc3af3",
+          "9ea01e7e-545e-44da-927c-15f7bf85629b"
+        ],
+        "runtime": [
+          "ebc66c44-badc-40b6-9dfb-24568dc110d9"
+        ],
+        "incorrect": [
+          "8432d021-2cf7-42aa-92a4-3414863b80df",
+          "fe6a41db-c1a0-4770-9efd-20427f41c8f8",
+          "1ee2a36a-ecc4-492d-a5e6-10b849bff0ba"
+        ]
+      }
+    }
+  }
+}

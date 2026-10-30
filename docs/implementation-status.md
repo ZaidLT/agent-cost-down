@@ -4,7 +4,7 @@ Updated October 30, 2026. Repository and deployments remain private pending fina
 
 ## Completed measurements
 
-Both v3 and v4 contain 100 development and 300 evaluation executions. V3 selected Nano-only and did not validate. V4 selected Nano followed by Ultra using development results before the evaluation rerun. It passed the unchanged criteria: 57/60 correct, matching Ultra's observed count at 74.5% lower estimated cost. Median latency is 18.9 seconds versus 5.45 seconds. All 300 assigned v4 evaluation executions are present with complete usage accounting.
+Both v3 and v4 contain 100 development and 300 evaluation executions. V3 selected Nano-only and did not validate. V4 selected Nano followed by Ultra using development results before the evaluation rerun. It passed the unchanged criteria: 57/60 correct, matching Ultra under the frozen clarification rule at 74.5% lower estimated cost. Median latency is 18.9 seconds versus 5.45 seconds. All 300 assigned v4 evaluation executions are present with complete usage accounting.
 
 Controlled rerun on the same evaluation suite. These tasks and their v3 results were inspected before the v4 amendment. This is not fresh independent validation.
 
@@ -23,3 +23,7 @@ The suite contains twenty evaluation tasks representing seven distinct scenarios
 Final deployed-interface verification; final video and YouTube upload; Devpost and sponsor feedback review; explicit publication approval; signed-out link verification and submission confirmation. External quickstart participation is not yet established.
 
 Submission target: October 30 at 18:00 Istanbul. Official deadline: 20:00 Istanbul. Current rules require access through December 23, 2026. Routine monitoring must not invoke inference.
+
+## Clarification sensitivity, added before recording
+
+**Scoring sensitivity:** all three Ultra failures are clarifications containing `request` plus `variant` and `quantity`. The frozen rule accepts only `[request]` or `[request, order_id]`. Under a broader rule that accepts any structured list containing `request`, while preserving every other outcome check, Ultra scores **60/60** and Nano followed by Ultra stays at **57/60**. This post-hoc analysis changes neither the frozen report nor the recommendation. The cost reduction remains 74.5%; it is not an unqualified quality-parity claim. The structured field list is scored, not the free-text question.

@@ -4,7 +4,9 @@ Compare an agent's execution policies, inspect independent outcomes, and apply t
 
 A Python tool agent runs a fictional store through five fixed policies built on NVIDIA Nemotron 3 models: Nano, Super, Ultra, Nano with one retry, and Nano followed by Ultra. Runtime checks decide whether another attempt is allowed. An independent evaluator scores the result afterward. Every attempt contributes to cost and latency.
 
-**Measured result:** Nano followed by Ultra achieved 57/60 correct outcomes, matching Ultra's observed success count at 74.5% lower estimated inference cost. Median latency was 18.9 seconds versus 5.45 seconds for Ultra. The complete v4 study contains 100 development and 300 evaluation executions. Its preselected cascade passed the declared criteria. Equal counts do not establish statistical equivalence or performance on other workloads.
+**Measured result:** Nano followed by Ultra achieved 57/60 correct outcomes, matching Ultra only under the frozen clarification rule, at 74.5% lower estimated inference cost. Median latency was 18.9 seconds versus 5.45 seconds for Ultra. The complete v4 study contains 100 development and 300 evaluation executions. Its preselected cascade passed the declared criteria. Equal counts do not establish statistical equivalence or performance on other workloads.
+
+**Scoring sensitivity:** all three Ultra failures are clarifications containing `request` plus `variant` and `quantity`. The frozen rule accepts only `[request]` or `[request, order_id]`. Under a broader rule that accepts any structured list containing `request`, while preserving every other outcome check, Ultra scores **60/60** and Nano followed by Ultra stays at **57/60**. This post-hoc analysis changes neither the frozen report nor the recommendation. The cost reduction remains 74.5%; it is not an unqualified quality-parity claim. The structured field list is scored, not the free-text question. See [the scoring sensitivity analysis](docs/clarification-sensitivity.md).
 
 Controlled rerun on the same evaluation suite. These tasks and their v3 results were inspected before the v4 amendment. This is not fresh independent validation.
 

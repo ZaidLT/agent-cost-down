@@ -1,5 +1,7 @@
 import type { Attempt, Policy, Report, Run, StoreState } from '../types'
 import replay from '../data/v3-replay.json' with {type: 'json'}
+import sensitivity from '../data/clarification-sensitivity.json' with {type: 'json'}
+import comparison from '../data/diagnosis-comparison.json' with {type: 'json'}
 
 export const policyIds = ['small_only', 'super_only', 'ultra_only', 'small_retry', 'small_ultra'] as const
 export const disclosure = 'Controlled rerun on the same evaluation suite. These tasks and their v3 results were inspected before the v4 amendment. This is not fresh independent validation.'
@@ -29,7 +31,7 @@ export const runtimeText = (verdict: string) => ({ ACCEPT: 'Accepted by runtime'
 export const attemptCost = (a: Attempt) => !a.usage?.length || a.usage.some(u => u.estimated_usd == null) ? null : a.usage.reduce((sum, u) => sum + u.estimated_usd!, 0)
 
 export const causes = {
-  contract: 'Verified redundant-field contract rejection', runtime: 'Other runtime or business-rule rejection', missing: 'Missing tool call', json: 'Malformed JSON', schema: 'Tool-argument schema failure', clarification: 'Clarification-scoring failure', incorrect: 'Incorrect accepted outcome', provider: 'Provider failure', deadline: 'Deadline interruption', unclassified: 'Unclassified failure',
+  contract: 'Our runtime rejected unchanged fields', runtime: 'Other runtime or business-rule rejection', missing: 'Missing tool call', json: 'Malformed JSON', schema: 'Tool-argument schema failure', clarification_missing_request: 'Clarification omitted request from structured fields', clarification_extra_fields: 'Clarification included request plus extra fields', clarification: 'Other clarification mismatch', incorrect: 'Incorrect accepted outcome', provider: 'Provider failure', deadline: 'Deadline interruption', unclassified: 'Unclassified failure',
 } as const
 export type Cause = keyof typeof causes
 const replayReports = replay.reports as Record<string, { attempts: string[]; final_failures: string[]; total_final_failures: number }>
@@ -50,7 +52,11 @@ export function attemptCause(report: Report, run: Run, index: number): Cause {
 }
 export function finalCause(report: Report, run: Run): Cause | null {
   if (run.outcome?.success) return null
-  if (run.outcome && run.verdict === 'CLARIFY' && !run.outcome.checks.response) return 'clarification'
+  if (run.outcome && run.verdict === 'CLARIFY' && !run.outcome.checks.response) {
+    const fields = run.attempts.at(-1)?.result?.missing
+    if (run.task.request === 'Please update my order.' && Array.isArray(fields)) return fields.includes('request') ? 'clarification_extra_fields' : 'clarification_missing_request'
+    return 'clarification'
+  }
   if (run.outcome && run.verdict === 'ACCEPT') return 'incorrect'
   if (/INTERRUPT|DEADLINE/.test(run.verdict)) return 'deadline'
   return attemptCause(report, run, run.attempts.length - 1)
@@ -87,3 +93,6 @@ export function stateDiff(before: StoreState, after: StoreState): StateChange[] 
   return changes
 }
 export function verifiedReplay(reportId: string) { return replayReports[reportId] }
+
+export const clarificationSensitivity = (report: Report) => report.id === sensitivity.report_id ? sensitivity : null
+export const diagnosisComparison = (report: Report) => report.source === 'benchmark' && report.id in comparison.reports ? comparison.reports : null

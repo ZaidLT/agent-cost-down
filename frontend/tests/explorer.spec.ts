@@ -106,3 +106,18 @@ test('the published report index loads without a preview overlay',async({page})=
  await expect(page.getByRole('heading',{name:'The cost of getting it right.'})).toBeVisible()
  await expect(page.getByText('Report '+report.id,{exact:true})).toBeVisible()
 })
+
+test('real report makes scoring sensitivity prominent and compares original failures',async({page})=>{
+ await page.goto('/');await expect(page.getByText('Scoring-sensitive result.',{exact:true})).toBeVisible()
+ await expect(page.getByText(/Accepting extra clarification fields gives Ultra 60\/60 and Nano/)).toBeVisible()
+ await page.getByRole('link',{name:'See the scoring sensitivity'}).click()
+ await expect(page.getByRole('heading',{name:'How clarification scoring changes the comparison'})).toBeInViewport()
+ await expect(page.getByText(/post-hoc sensitivity analysis, not new model runs/)).toBeVisible()
+ const comparison=page.getByRole('region',{name:'Original and amended failure comparison'})
+ await expect(comparison.getByRole('row',{name:'Total final failures 52 27'})).toBeVisible()
+ const contractRow=comparison.getByRole('row').filter({has:page.getByRole('rowheader',{name:'Our runtime rejected unchanged fields',exact:true})});await expect(contractRow.getByRole('cell')).toHaveText(['33','0'])
+ await expect(page.getByText('1 incorrect accepted outcome.',{exact:false})).toBeVisible()
+ await page.getByLabel('Experiment version').selectOption('555720dd79a2c26c.json')
+ await expect(page.getByRole('link',{name:'Inspect a recovery',exact:true})).toHaveCount(0)
+ await expect(page.getByText('We kept the preselected policy and reported its failure.',{exact:true})).toBeVisible()
+})

@@ -1,6 +1,6 @@
 import {test,expect} from '@playwright/test'
 import {readFileSync} from 'node:fs'
-import {attemptCause,diagnosis,exportedPolicy,finalCause,pairedCounts,stateDiff} from '../src/lib/evidence'
+import {attemptCause,clarificationSensitivity,diagnosis,diagnosisComparison,exportedPolicy,finalCause,pairedCounts,stateDiff} from '../src/lib/evidence'
 import {makeReport} from './fixtures/reports'
 import type {Report} from '../src/types'
 test('verified contract map matches original immutable v3 report and final categories reconcile',()=>{
@@ -35,4 +35,21 @@ test('policy export preserves unknown fields, nested settings and every limit',(
  const config=makeReport().runs[0].policy;config.extra_future_field={untouched:true};config.models[0].settings={temperature:0,seed:42};config.limits.extra_limit=17
  const exported=JSON.parse(JSON.stringify(exportedPolicy(config,'synthetic-report')))
  expect(exported).toEqual({...config,supporting_report:'synthetic-report'});expect(config.supporting_report).not.toBe('synthetic-report')
+})
+
+test('real v4 sensitivity preserves scores and separates extra fields from missing structured request',()=>{
+ const report=JSON.parse(readFileSync(new URL('../public/reports/135c81cc2a5991c2.json',import.meta.url),'utf8')) as Report
+ const original=JSON.stringify(report);const analysis=clarificationSensitivity(report)!
+ expect(analysis.policies.ultra_only).toMatchObject({frozen_successes:57,broader_successes:60})
+ expect(analysis.policies.small_ultra).toMatchObject({frozen_successes:57,broader_successes:57})
+ const groups=diagnosis(report);expect(groups.final.clarification_missing_request).toHaveLength(12);expect(groups.final.clarification_extra_fields).toHaveLength(4)
+ expect(Object.values(groups.final).flat()).toHaveLength(27)
+ for(const row of analysis.clarification_failures){const run=report.runs.find(r=>r.id===row.run_id)!;expect(run.attempts.at(-1)!.result!.missing).toEqual(row.missing);expect(run.outcome!.success).toBe(false)}
+ expect(JSON.stringify(report)).toBe(original)
+ const comparison=diagnosisComparison(report)!;expect(comparison['555720dd79a2c26c'].total_final_failures).toBe(52);expect(comparison[report.id as keyof typeof comparison].total_final_failures).toBe(27)
+ for(const [id,item] of Object.entries(comparison)){
+  const source=JSON.parse(readFileSync(new URL('../public/reports/'+id+'.json',import.meta.url),'utf8')) as Report
+  const actual=diagnosis(source).final
+  for(const [key,runs] of Object.entries(item.categories))expect(actual[key as keyof typeof actual].map(r=>r.id).sort()).toEqual([...runs].sort())
+ }
 })
